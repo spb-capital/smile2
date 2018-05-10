@@ -4,7 +4,6 @@ import dash_html_components as html
 from dash.dependencies import Input, State, Output, Event
 import plotly.graph_objs as go
 import dash
-from dash_control_components import BooleanSwitch, Gauge, GraduatedBar, Indicator, Knob, NumericInput, PowerButton, StopButton, Tank, Thermometer, ToggleSwitch, DarkThemeProvider
 from scipy import signal
 import dash_daq as daq
 
@@ -38,8 +37,8 @@ app.layout = html.Div([
                     html.H3("POWER")
                 ], className='Title'),
                 html.Div([
-                    html.Div([PowerButton(id = 'fnct_power', on = 'true', label = "FNCT", labelPosition = 'bottom')], className = 'six columns', style = {'margin-bottom': '15px'}),
-                    html.Div([PowerButton(id = 'osc_power', on = 'true', label = "OSC", labelPosition = 'bottom')], className = 'six columns', style = {'margin-bottom': '15px'}),
+                    html.Div([daq.PowerButton(id = 'fnct_power', on = 'true', label = "FNCT", labelPosition = 'bottom')], className = 'six columns', style = {'margin-bottom': '15px'}),
+                    html.Div([daq.PowerButton(id = 'osc_power', on = 'true', label = "OSC", labelPosition = 'bottom')], className = 'six columns', style = {'margin-bottom': '15px'}),
                 ], style = {'margin': '15px 0'})
                 ], className='row power-settings-tab'),
         html.Div([
@@ -93,8 +92,8 @@ app.layout = html.Div([
             style={'backgroundColor': '#119DFF', 'height': '80%'},
         ),
         html.Div([
-            html.Div([Indicator(id="fnct_indicator")], className = "one columns"),
-            html.Div([Indicator(id="osc_indicator")], className = "one columns"),
+            html.Div([daq.Indicator(id="fnct_indicator")], className = "one columns"),
+            html.Div([daq.Indicator(id="osc_indicator")], className = "one columns"),
             html.Button('-', id='del_tab', type = 'submit', style = {'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right', 'margin-left': '10px'}),
             html.Button('+', id='new_tab', type = 'submit', style = {'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right'}),
 
