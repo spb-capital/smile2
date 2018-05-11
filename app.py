@@ -1,11 +1,12 @@
-import numpy as np
-import dash_core_components as dcc
+import dash
+import dash_daq as daq
 import dash_html_components as html
 from dash.dependencies import Input, State, Output, Event
+import numpy as np
+import dash_core_components as dcc
 import plotly.graph_objs as go
-import dash
 from scipy import signal
-import dash_daq as daq
+
 
 app = dash.Dash()
 
