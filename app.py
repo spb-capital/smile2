@@ -194,7 +194,7 @@ def update_output(n_clicks, value, frequency, wave, amplitude, offset):
                 )
 
             runs['' + str(value)] = figure
-            tab = value
+            
             return figure
 
 
