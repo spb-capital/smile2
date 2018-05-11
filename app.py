@@ -22,6 +22,7 @@ tabs = [
 tab = 1
 
 runs = {}
+info = {}
 
 app.layout = html.Div(id = 'container', children = [
 # LEFT SIDE
@@ -95,10 +96,12 @@ app.layout = html.Div(id = 'container', children = [
         html.Div([
             html.Div([daq.Indicator(id="fnct_indicator")], className = "one columns"),
             html.Div([daq.Indicator(id="osc_indicator")], className = "one columns"),
+            html.Div([html.Div("NO DATA", id = "details", style = {'textAlign': 'center', 'fontSize': '10px', 'padding': '0px 5px', 'lineHeight': '20px', 'border': '2px solid rgb(240, 240, 240)'})], className = "four columns"),
+            html.Div(id = "curr_info"),
             html.Button('-', id='del_tab', type = 'submit', style = {'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right', 'margin-left': '10px'}),
             html.Button('+', id='new_tab', type = 'submit', style = {'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right'}),
         ], className='row graph-info', style = {'margin': '15px'}),
-
+        html.Hr(),
         dcc.Graph(
             id = 'oscope',
             figure = dict(
@@ -130,14 +133,22 @@ app.layout = html.Div(id = 'container', children = [
 #     tabs.append({'label': 'Run #' + str(tabs[-1]['value'] + 1), 'value': int(tabs[-1]['value']) + 1})
 #     return tabs
 
+@app.callback(Output('details', 'children'),
+            [Input('oscope', 'figure'),
+             Input('tabs', 'value')])
+def update_details(figure, value):
+    if('' + str(value) in runs):
+        return runs['' + str(value)][1]
+    else:
+        return "NO DATA"
+
 @app.callback(Output('oscope', 'figure'),
             [Input('setting_submit', 'n_clicks'),
              Input('tabs', 'value')],
             [State('frequency_input', 'value'),
             State('function_type', 'value'),
             State('amplitude_input', 'value'),
-            State('offset_input', 'value'),
-             ])
+            State('offset_input', 'value')])
 def update_output(n_clicks, value, frequency, wave, amplitude, offset):
     global tab
     time = np.linspace(-0.000045, 0.000045, 1e3)
@@ -161,7 +172,7 @@ def update_output(n_clicks, value, frequency, wave, amplitude, offset):
         if tab is not value:
             if('' + str(value) in runs):
                 tab = value
-                return runs['' + str(value)]
+                return runs['' + str(value)][0]
             else:
                 tab = value
                 return zero
@@ -193,8 +204,8 @@ def update_output(n_clicks, value, frequency, wave, amplitude, offset):
                     )
                 )
 
-            runs['' + str(value)] = figure
-            
+            runs['' + str(value)] = figure, "WAVE: " + str(wave) + "      " + str(frequency) +  " Hz" + "      " + str(amplitude) + " μm"
+
             return figure
 
 
