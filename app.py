@@ -102,7 +102,7 @@ app.layout = html.Div(id = 'container', children = [
         dcc.Graph(
             id = 'oscope',
             figure = dict(
-                    data = [dict(x = np.linspace(-0.000045, 0.000045, 1e3), y = [0] * len(np.linspace(-0.000045, 0.000045, 1e3)), marker = {'color': '#119DFF'})],
+                    data = [dict(x = np.linspace(-0.000045, 0.000045, 1e3), y = [0] * len(np.linspace(-0.000045, 0.000045, 1e3)), marker = {'color': 'rgb(68, 126, 255)'})],
                     layout =  go.Layout(
                         xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
                             family='Dosis',
@@ -142,10 +142,16 @@ def update_output(n_clicks, value, frequency, wave, amplitude, offset):
     global tab
     time = np.linspace(-0.000045, 0.000045, 1e3)
     zero = dict(
-            data = [dict(x = time, y = [0] * len(time), marker = {'color': '#119DFF'})],
+            data = [dict(x = time, y = [0] * len(time), marker = {'color': 'rgb(68, 126, 255)'})],
             layout =  go.Layout(
-                xaxis={'type': 'linear', 'title': 's'},
-                yaxis={'title': 'Voltage (V)'},
+                xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
+                    family='Dosis',
+                    size=15,
+                )},
+                yaxis={'title': 'Voltage (V)','titlefont': dict(
+                    family='Dosis',
+                    size=15,
+                )},
                 margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
                 plot_bgcolor = 'rgb(240, 240, 240)',
             )
@@ -172,10 +178,16 @@ def update_output(n_clicks, value, frequency, wave, amplitude, offset):
                 y = float(offset) + 2*y - float(amplitude)
 
             figure = dict(
-                    data = [dict(x = time, y = y, marker = {'color': '#119DFF'})],
+                    data = [dict(x = time, y = y, marker = {'color': 'rgb(68, 126, 255)'})],
                     layout =  go.Layout(
-                        xaxis={'type': 'linear', 'title': 's'},
-                        yaxis={'title': 'Voltage (V)'},
+                        xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
+                            family='Dosis',
+                            size=15,
+                        )},
+                        yaxis={'title': 'Voltage (V)','titlefont': dict(
+                            family='Dosis',
+                            size=15,
+                        )},
                         margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
                         plot_bgcolor = 'rgb(240, 240, 240)',
                     )
