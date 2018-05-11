@@ -23,8 +23,7 @@ tab = 1
 
 runs = {}
 
-app.layout = html.Div([
-
+app.layout = html.Div(id = 'container', children = [
 # LEFT SIDE
     html.Div([
         html.H2("Dash Instrumentation"),
@@ -79,7 +78,7 @@ app.layout = html.Div([
             ], className='row power-settings-tab'),
         html.Hr(),
         html.Button('Update', id='setting_submit', type = 'submit'),
-    ], className = 'four columns left-tab'),
+    ], className = 'three columns left-tab'),
 
 
 # RIGHT SIDE
@@ -92,42 +91,44 @@ app.layout = html.Div([
             id = 'tabs',
             style={'backgroundColor': '#119DFF', 'height': '80%'},
         ),
+
         html.Div([
             html.Div([daq.Indicator(id="fnct_indicator")], className = "one columns"),
             html.Div([daq.Indicator(id="osc_indicator")], className = "one columns"),
             html.Button('-', id='del_tab', type = 'submit', style = {'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right', 'margin-left': '10px'}),
             html.Button('+', id='new_tab', type = 'submit', style = {'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right'}),
-
         ], className='row graph-info', style = {'margin': '15px'}),
-        html.Div(id = 'tab-output'),
+
         dcc.Graph(
-            id='oscope',
-            figure=
-            {
-                'data': dict(
-                        data = [dict(x = np.linspace(-0.000045, 0.000045, 1e5), y = [0] * len(np.linspace(-0.000045, 0.000045, 1e5)))],
-                        layout =  go.Layout(
-                            xaxis={'type': 'linear', 'title': 's'},
-                            yaxis={'title': 'Voltage (V)'},
-                            margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                            plot_bgcolor = 'rgb(240, 240, 240)',
-                        )
-                    ),
-                'layout': go.Layout(
-                    xaxis={'type': 'linear', 'title': 's'},
-                    yaxis={'title': 'Voltage (V)'},
-                    margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                    plot_bgcolor = 'rgb(240, 240, 240)',
-                )
+            id = 'oscope',
+            figure = dict(
+                    data = [dict(x = np.linspace(-0.000045, 0.000045, 1e3), y = [0] * len(np.linspace(-0.000045, 0.000045, 1e3)), marker = {'color': '#119DFF'})],
+                    layout =  go.Layout(
+                        xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
+                            family='Dosis',
+                            size=15,
+                        )},
+                        yaxis={'title': 'Voltage (V)','titlefont': dict(
+                            family='Dosis',
+                            size=15,
+                        )},
+                        margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+                        plot_bgcolor = 'rgb(240, 240, 240)',
+                    )
+                ),
+            config = {
+                'displayModeBar': False
             }
-        ),], className = 'seven columns graph'),
+        )
+        ], className = 'eight columns graph'),
 ])
 
-@app.callback(Output('tabs', 'tabs'),
-            [Input('new_tab', 'n_clicks')])
-def new_tabs(n_clicks):
-    tabs.append({'label': 'Run #' + str(tabs[-1]['value'] + 1), 'value': int(tabs[-1]['value']) + 1})
-    return tabs
+# @app.callback(Output('tabs', 'tabs'),
+#             [Input('new_tab', 'n_clicks')],
+#             [State('tabs', 'value')])
+# def new_tabs(n_clicks):
+#     tabs.append({'label': 'Run #' + str(tabs[-1]['value'] + 1), 'value': int(tabs[-1]['value']) + 1})
+#     return tabs
 
 @app.callback(Output('oscope', 'figure'),
             [Input('setting_submit', 'n_clicks'),
@@ -139,9 +140,9 @@ def new_tabs(n_clicks):
              ])
 def update_output(n_clicks, value, frequency, wave, amplitude, offset):
     global tab
-    time = np.linspace(-0.000045, 0.000045, 1e5)
+    time = np.linspace(-0.000045, 0.000045, 1e3)
     zero = dict(
-            data = [dict(x = time, y = [0] * len(time))],
+            data = [dict(x = time, y = [0] * len(time), marker = {'color': '#119DFF'})],
             layout =  go.Layout(
                 xaxis={'type': 'linear', 'title': 's'},
                 yaxis={'title': 'Voltage (V)'},
@@ -171,7 +172,7 @@ def update_output(n_clicks, value, frequency, wave, amplitude, offset):
                 y = float(offset) + 2*y - float(amplitude)
 
             figure = dict(
-                    data = [dict(x = time, y = y)],
+                    data = [dict(x = time, y = y, marker = {'color': '#119DFF'})],
                     layout =  go.Layout(
                         xaxis={'type': 'linear', 'title': 's'},
                         yaxis={'title': 'Voltage (V)'},
@@ -197,6 +198,14 @@ def fnct_indication(on):
 def osc_indication(on):
     return on
 
+@app.callback(Output('tabs', 'tabs'),
+            [Input('new_tab', 'n_clicks')])
+def new_tabs(n_clicks):
+    if n_clicks is not None:
+        tabs.append({'label': 'Run #' + str(tabs[-1]['value'] + 1), 'value': int(tabs[-1]['value']) + 1})
+        return tabs
+    else:
+        return tabs
 
 external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
                 "https://rawgit.com/samisahn/dash-app-stylesheets/master/dash-instrumentation.css",
