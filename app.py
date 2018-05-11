@@ -166,37 +166,36 @@ def update_output(n_clicks, value, frequency, wave, amplitude, offset):
                 tab = value
                 return zero
 
-    else:
-        if(wave == 'SIN'):
-            y = [float(offset) + (float(amplitude) * np.sin(np.radians(2.0 * np.pi * float(frequency) * t))) for t in time]
+        else:
+            if(wave == 'SIN'):
+                y = [float(offset) + (float(amplitude) * np.sin(np.radians(2.0 * np.pi * float(frequency) * t))) for t in time]
 
-        elif(wave == 'SQUARE'):
-            y = [float(offset) + float(amplitude) *(signal.square(2.0 * np.pi * float(frequency)/10 * t)) for t in time]
+            elif(wave == 'SQUARE'):
+                y = [float(offset) + float(amplitude) *(signal.square(2.0 * np.pi * float(frequency)/10 * t)) for t in time]
 
-        elif(wave == 'RAMP'):
-            y = float(amplitude) * (np.abs(signal.sawtooth(2 * np.pi * float(frequency)/10 * time)))
-            y = float(offset) + 2*y - float(amplitude)
+            elif(wave == 'RAMP'):
+                y = float(amplitude) * (np.abs(signal.sawtooth(2 * np.pi * float(frequency)/10 * time)))
+                y = float(offset) + 2*y - float(amplitude)
 
-        figure = dict(
-                data = [dict(x = time, y = y, marker = {'color': 'rgb(68, 126, 255)'})],
-                layout =  go.Layout(
-                    xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
-                        family='Dosis',
-                        size=15,
-                    )},
-                    yaxis={'title': 'Voltage (V)','titlefont': dict(
-                        family='Dosis',
-                        size=15,
-                    )},
-                    margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                    plot_bgcolor = 'rgb(240, 240, 240)',
+            figure = dict(
+                    data = [dict(x = time, y = y, marker = {'color': 'rgb(68, 126, 255)'})],
+                    layout =  go.Layout(
+                        xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
+                            family='Dosis',
+                            size=15,
+                        )},
+                        yaxis={'title': 'Voltage (V)','titlefont': dict(
+                            family='Dosis',
+                            size=15,
+                        )},
+                        margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+                        plot_bgcolor = 'rgb(240, 240, 240)',
+                    )
                 )
-            )
 
-        runs['' + str(value)] = figure
-        tab = value
-
-        return figure
+            runs['' + str(value)] = figure
+            tab = value
+            return figure
 
 
 @app.callback(
