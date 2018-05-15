@@ -84,7 +84,20 @@ app.layout = html.Div(id='container', children=[
                             'justifyContent': 'center'
                            }),
             # fix updates
-            daq.PrecisionInput(id='ampl', precision=4, value=1, min=0.5, max=10, style={'float': 'right'}),
+            html.Div(id="hidden-freq", style={'display': 'none'}),
+            html.Div(id="hidden-ampl", style={'display': 'none'}),
+            html.Div(id="hidden-off", style={'display': 'none'}),
+            #
+            html.Div([
+                daq.PrecisionInput(id='freq', size=75, precision=4, value=1E6, min=1E5, max=2.5E6, label="Frequency (Hz)", labelPosition="bottom"),
+                daq.PrecisionInput(id='ampl', size=75, precision=4, value=1, min=0.5, max=10, label="Amplitude (mV)", labelPosition="bottom"),
+                daq.PrecisionInput(id='off', size=75, precision=4, value=0, min=0, max=10, label="Offset (mV)", labelPosition="bottom"),
+            ], style={'margin': '0 auto',
+                      'display': 'flex',
+                      'width': '80%',
+                      'alignItems': 'center',
+                      'justifyContent': 'space-between'
+                     }),
             dcc.RadioItems(
                 id='function_type',
                 options=[
@@ -95,7 +108,7 @@ app.layout = html.Div(id='container', children=[
                 ],
                 value='SIN',
                 labelStyle={'display': 'inline-block'},
-                style={'margin': '0 auto',
+                style={'margin': '30px auto 0px auto',
                        'display': 'flex',
                        'width': '80%',
                        'alignItems': 'center',
@@ -148,15 +161,35 @@ app.layout = html.Div(id='container', children=[
     ], className='seven columns graph'),
 ])
 
-@app.callback(Output('amplitude_input', 'value'),
-              [Input('ampl', 'value')])
-def update_ampl(value):
-    return value
+@app.callback(Output('hidden-ampl', 'children'),
+              [Input('amplitude_input', 'value')])
+def update_hidden_ampl(value):
+    return str(value)
 
 @app.callback(Output('ampl', 'value'),
-              [Input('frequency_input', 'value')])
+              [Input('hidden-ampl', 'children')],)
 def update_amplPI(value):
-    return value
+    return float(value)
+
+@app.callback(Output('hidden-freq', 'children'),
+              [Input('frequency_input', 'value')])
+def update_hidden_freq(value):
+    return str(value)
+
+@app.callback(Output('freq', 'value'),
+              [Input('hidden-freq', 'children')],)
+def update_freqPI(value):
+    return float(value)
+
+@app.callback(Output('hidden-off', 'children'),
+              [Input('offset_input', 'value')])
+def update_hidden_off(value):
+    return str(value)
+
+@app.callback(Output('off', 'value'),
+              [Input('hidden-off', 'children')],)
+def update_offPI(value):
+    return float(value)
 
 @app.callback(Output('details', 'children'),
               [Input('oscope', 'figure'),
@@ -276,7 +309,7 @@ def new_tabs(n_clicks):
     return tabs
 
 external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
-                "https://rawgit.com/samisahn/dash-app-stylesheets/master/dash-instrumentation.css",
+                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/09e3a2ee/dash-tektronix-350.css",
                 "https://fonts.googleapis.com/css?family=Dosis"]
 
 for css in external_css:
