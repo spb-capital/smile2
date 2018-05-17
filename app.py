@@ -28,12 +28,12 @@ app.layout = html.Div(id='container', children=[
     # LEFT SIDE
     html.Div([
         html.H2("Dash DAQ: Function Generator & Oscilloscope Control Panel", style={'marginLeft': '40px'}),
-    ], className='banner'),
+    ], className='banner', id="header"),
 
     html.Div([
         html.Div([
             html.Div([
-                html.H3("POWER")
+                html.H3("POWER", id="power_title")
             ], className='Title'),
             html.Div([
                 html.Div([daq.PowerButton(id='fnct_power', on='true', label="Function Generator", labelPosition='bottom')], className='six columns', style={'margin-bottom': '15px'}),
@@ -42,7 +42,7 @@ app.layout = html.Div(id='container', children=[
         ], className='row power-settings-tab'),
         html.Div([
             html.Div([
-                html.H3("FUNCTION")
+                html.H3("FUNCTION", id="function_title")
             ], className='Title'),
             html.Div([
                 daq.Knob(
@@ -53,7 +53,7 @@ app.layout = html.Div(id='container', children=[
                     size=75,
                     color='rgb(68, 126, 255)',
                     # add custom ticks
-                    scale={'interval': 1E5, 'custom': {'2.5E6': {'label': '2.5E6', 'style': {'color': 'red'}}}},
+                    scale={'interval': 1E5},
                     max=2.5E6,
                     min=1E5
                 ),
@@ -83,15 +83,11 @@ app.layout = html.Div(id='container', children=[
                             'alignItems': 'center',
                             'justifyContent': 'center'
                            }),
-            # fix updates
-            html.Div(id="hidden-freq", style={'display': 'none'}),
-            html.Div(id="hidden-ampl", style={'display': 'none'}),
-            html.Div(id="hidden-off", style={'display': 'none'}),
-            #
+
             html.Div([
-                daq.PrecisionInput(id='freq', size=75, precision=4, value=1E6, min=1E5, max=2.5E6, label="Frequency (Hz)", labelPosition="bottom"),
-                daq.PrecisionInput(id='ampl', size=75, precision=4, value=1, min=0.5, max=10, label="Amplitude (mV)", labelPosition="bottom"),
-                daq.PrecisionInput(id='off', size=75, precision=4, value=0, min=0, max=10, label="Offset (mV)", labelPosition="bottom"),
+                daq.PrecisionInput(id='freq', size=75, precision=4, value=1E6, min=1E5, max=2.5E6, label="Frequency (Hz)", labelPosition="bottom", disabled=True),
+                daq.PrecisionInput(id='ampl', size=75, precision=4, value=1, min=0.5, max=10, label="Amplitude (mV)", labelPosition="bottom", disabled=True),
+                daq.PrecisionInput(id='off', size=75, precision=4, value=0, min=0, max=10, label="Offset (mV)", labelPosition="bottom", disabled=True),
             ], style={'margin': '0 auto',
                       'display': 'flex',
                       'width': '80%',
@@ -116,13 +112,20 @@ app.layout = html.Div(id='container', children=[
                 )
             ], className='row power-settings-tab'),
         html.Hr(),
-        # html.Button('Update', id='setting_submit', type = 'submit'),
+        daq.ColorPicker(
+            id="color-picker",
+            label="Color Picker",
+            value=dict(hex="#447EFF"),
+            size=164,
+            theme={'dark': True}
+        ),
+        html.Div("rgb(68, 126, 255)", id="hidden-div", style={'display':'none'})
     ], className='four columns left-tab'),
 
 
     # RIGHT SIDE
     html.Div([
-        html.Div([html.H3("GRAPH"),], className='Title'),
+        html.Div([html.H3("GRAPH", id="graph_title"),], className='Title'),
         dcc.Tabs(
             tabs=tabs,
             value=1,
@@ -131,8 +134,6 @@ app.layout = html.Div(id='container', children=[
         ),
 
         html.Div([
-            # html.Div([daq.Indicator(id="fnct_indicator", label="FNCT", labelPosition = "bottom",)], className="one columns"),
-            # html.Div([daq.Indicator(id="osc_indicator", label="OSC", labelPosition = "bottom")], className="one columns"),
             html.Div([html.Div("NO DATA", id="details", style={'textAlign': 'center', 'fontSize': '10px', 'padding': '0px 5px', 'lineHeight': '20px', 'border': '2px solid rgb(240, 240, 240)'})], className="four columns"),
             html.Div(id="curr_info"),
             html.Button('-', id='del_tab', type='submit', style={'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right', 'margin-left': '10px'}),
@@ -161,35 +162,83 @@ app.layout = html.Div(id='container', children=[
     ], className='seven columns graph'),
 ])
 
-@app.callback(Output('hidden-ampl', 'children'),
-              [Input('amplitude_input', 'value')])
-def update_hidden_ampl(value):
-    return str(value)
+@app.callback(
+    Output('hidden-div', 'children'),
+    [Input('color-picker', 'value')])
+def hidden_div(color):
+    return color['hex']
+
+@app.callback(
+    Output('tabs', 'style'),
+    [Input('color-picker', 'value')])
+def tabs_background(color):
+    return {'backgroundColor': color['hex']}
+
+@app.callback(
+    Output('power_title', 'style'),
+    [Input('color-picker', 'value')])
+def power_title(color):
+    return {'color': color['hex']}
+
+@app.callback(
+    Output('function_title', 'style'),
+    [Input('color-picker', 'value')])
+def function_title(color):
+    return {'color': color['hex']}
+
+@app.callback(
+    Output('graph_title', 'style'),
+    [Input('color-picker', 'value')])
+def graph_title(color):
+    return {'color': color['hex']}
+
+@app.callback(
+    Output('fnct_power', 'color'),
+    [Input('color-picker', 'value')])
+def fnct_style(color):
+    return color['hex']
+
+@app.callback(
+    Output('osc_power', 'color'),
+    [Input('color-picker', 'value')])
+def osc_style(color):
+    return color['hex']
+
+@app.callback(
+    Output('header', 'style'),
+    [Input('color-picker', 'value')])
+def update_header(color):
+    return {'backgroundColor': color['hex']}
+
+@app.callback(Output('frequency_input', 'color'),
+              [Input('color-picker', 'value')])
+def set_freq_color(color):
+    return color['hex']
+
+@app.callback(Output('amplitude_input', 'color'),
+              [Input('color-picker', 'value')])
+def set_amplitude_color(color):
+    return color['hex']
+
+@app.callback(Output('offset_input', 'color'),
+              [Input('color-picker', 'value')])
+def set_offset_color(color):
+    return color['hex']
 
 @app.callback(Output('ampl', 'value'),
-              [Input('hidden-ampl', 'children')],)
+              [Input('amplitude_input', 'value')],)
 def update_amplPI(value):
-    return float(value)
-
-@app.callback(Output('hidden-freq', 'children'),
-              [Input('frequency_input', 'value')])
-def update_hidden_freq(value):
-    return str(value)
+    return value
 
 @app.callback(Output('freq', 'value'),
-              [Input('hidden-freq', 'children')],)
+              [Input('frequency_input', 'value')],)
 def update_freqPI(value):
-    return float(value)
-
-@app.callback(Output('hidden-off', 'children'),
-              [Input('offset_input', 'value')])
-def update_hidden_off(value):
-    return str(value)
+    return value
 
 @app.callback(Output('off', 'value'),
-              [Input('hidden-off', 'children')],)
+              [Input('offset_input', 'value')])
 def update_offPI(value):
-    return float(value)
+    return value
 
 @app.callback(Output('details', 'children'),
               [Input('oscope', 'figure'),
@@ -212,7 +261,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_power)
 
     time = np.linspace(-0.000045, 0.000045, 1e3)
     zero = dict(
-        data=[dict(x=time, y=[0] * len(time), marker={'color': 'rgb(68, 126, 255)'})],
+        data=[dict(x=time, y=[0] * len(time), marker={'color': '#1d1d1d'})],
         layout=go.Layout(
             xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
                 family='Dosis',
@@ -268,7 +317,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_power)
             y = float(offset) + 2*y - float(amplitude)
 
         figure = dict(
-            data=[dict(x=time, y=y, marker={'color': 'rgb(68, 126, 255)'})],
+            data=[dict(x=time, y=y, marker={'color': '#1d1d1d'})],
             layout=go.Layout(
                 xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
                     family='Dosis',
