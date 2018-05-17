@@ -36,8 +36,8 @@ app.layout = html.Div(id='container', children=[
                 html.H3("POWER", id="power_title")
             ], className='Title'),
             html.Div([
-                html.Div([daq.PowerButton(id='fnct_power', on='true', label="Function Generator", labelPosition='bottom')], className='six columns', style={'margin-bottom': '15px'}),
-                html.Div([daq.PowerButton(id='osc_power', on='true', label="Oscilloscope", labelPosition='bottom')], className='six columns', style={'margin-bottom': '15px'}),
+                html.Div([daq.PowerButton(id='fnct_power', on='true', label="Function Generator", labelPosition='bottom', color="#447EFF")], className='six columns', style={'margin-bottom': '15px'}),
+                html.Div([daq.PowerButton(id='osc_power', on='true', label="Oscilloscope", labelPosition='bottom', color="#447EFF")], className='six columns', style={'margin-bottom': '15px'}),
             ], style={'margin': '15px 0'})
         ], className='row power-settings-tab'),
         html.Div([
@@ -51,8 +51,7 @@ app.layout = html.Div(id='container', children=[
                     label="Frequency (Hz)",
                     labelPosition="bottom",
                     size=75,
-                    color='rgb(68, 126, 255)',
-                    # add custom ticks
+                    color="#447EFF",
                     scale={'interval': 1E5},
                     max=2.5E6,
                     min=1E5
@@ -64,7 +63,7 @@ app.layout = html.Div(id='container', children=[
                     labelPosition="bottom",
                     size=75,
                     scale={'labelInterval': 10},
-                    color='rgb(68, 126, 255)',
+                    color="#447EFF",
                     max=10,
                 ),
                 daq.Knob(
@@ -74,7 +73,7 @@ app.layout = html.Div(id='container', children=[
                     labelPosition="bottom",
                     size=75,
                     scale={'labelInterval': 10},
-                    color='rgb(68, 126, 255)',
+                    color="#447EFF",
                     max=10,
                 )],
                      style={'margin': '0 auto',
@@ -85,22 +84,22 @@ app.layout = html.Div(id='container', children=[
                            }),
 
             html.Div([
-                daq.PrecisionInput(id='freq', size=75, precision=4, value=1E6, min=1E5, max=2.5E6, label="Frequency (Hz)", labelPosition="bottom", disabled=True),
-                daq.PrecisionInput(id='ampl', size=75, precision=4, value=1, min=0.5, max=10, label="Amplitude (mV)", labelPosition="bottom", disabled=True),
-                daq.PrecisionInput(id='off', size=75, precision=4, value=0, min=0, max=10, label="Offset (mV)", labelPosition="bottom", disabled=True),
+                daq.LEDDisplay(id='freq', size=10, value=1E6, label="Frequency (Hz)", labelPosition="bottom", color="#447EFF", style={'textAlign': 'center'}),
+                daq.LEDDisplay(id='ampl', size=10, value=1, label="Amplitude (mV)", labelPosition="bottom", color="#447EFF", style={'textAlign': 'center'}),
+                daq.LEDDisplay(id='off', size=10, value=10, label="Offset (mV)", labelPosition="bottom", color="#447EFF", style={'textAlign': 'center'}),
             ], style={'margin': '0 auto',
                       'display': 'flex',
                       'width': '80%',
                       'alignItems': 'center',
                       'justifyContent': 'space-between'
                      }),
+
             dcc.RadioItems(
                 id='function_type',
                 options=[
                     {'label': 'Sine', 'value': 'SIN'},
                     {'label': 'Square', 'value': 'SQUARE'},
                     {'label': 'Ramp', 'value': 'RAMP'},
-                    # {'label': 'Pulse', 'value': 'PULSE'},
                 ],
                 value='SIN',
                 labelStyle={'display': 'inline-block'},
@@ -119,7 +118,6 @@ app.layout = html.Div(id='container', children=[
             size=164,
             theme={'dark': True}
         ),
-        html.Div("rgb(68, 126, 255)", id="hidden-div", style={'display':'none'})
     ], className='four columns left-tab'),
 
 
@@ -136,7 +134,6 @@ app.layout = html.Div(id='container', children=[
         html.Div([
             html.Div([html.Div("NO DATA", id="details", style={'textAlign': 'center', 'fontSize': '10px', 'padding': '0px 5px', 'lineHeight': '20px', 'border': '2px solid rgb(240, 240, 240)'})], className="four columns"),
             html.Div(id="curr_info"),
-            html.Button('-', id='del_tab', type='submit', style={'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right', 'margin-left': '10px'}),
             html.Button('+', id='new_tab', type='submit', style={'height': '20px', 'width': '20px', 'padding': '0px', 'lineHeight': '10px', 'float': 'right'}),
         ], className='row graph-info', style={'margin': '15px'}),
         html.Hr(),
@@ -157,15 +154,28 @@ app.layout = html.Div(id='container', children=[
                     plot_bgcolor='rgb(240, 240, 240)',
                 )
             ),
-            config={'displayModeBar': False}
+            config={'displayModeBar': True,
+                    'modeBarButtonsToRemove': ['pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian']}
         )
     ], className='seven columns graph'),
 ])
 
 @app.callback(
-    Output('hidden-div', 'children'),
+    Output('freq', 'color'),
     [Input('color-picker', 'value')])
-def hidden_div(color):
+def frequency_display(color):
+    return color['hex']
+
+@app.callback(
+    Output('ampl', 'color'),
+    [Input('color-picker', 'value')])
+def amplitude_display(color):
+    return color['hex']
+
+@app.callback(
+    Output('off', 'color'),
+    [Input('color-picker', 'value')])
+def offset_display(color):
     return color['hex']
 
 @app.callback(
@@ -293,11 +303,9 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_power)
             )
         )
 
-    # check
     if not fnct_power:
         return zero
 
-    # if n_clicks is not None:
     if tab is not value:
         if '' + str(value) in runs:
             tab = value
@@ -332,7 +340,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_power)
             )
         )
 
-        runs['' + str(value)] = figure, str(wave) + "      " + str(frequency) +  " Hz" + "      " + str(amplitude) + "mV"
+        runs['' + str(value)] = figure, str(wave) + "\t" + str(frequency) +  " Hz" + "\t" + str(amplitude) + "mV"
 
         return figure
 
