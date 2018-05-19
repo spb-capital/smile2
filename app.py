@@ -153,6 +153,10 @@ app.layout = html.Div(id='container', children=[
                 )
             ], className='row power-settings-tab'),
         html.Hr(),
+        daq.ToggleSwitch(
+            label=["Light","Dark"],
+            color="#2a3f5f"
+        ),
         daq.ColorPicker(
             id="color-picker",
             label="Color Picker",
@@ -175,16 +179,25 @@ app.layout = html.Div(id='container', children=[
 
         html.Div([
             html.Div([
-                html.Div("NO DATA",
-                         id="details",
-                         style={
-                             'textAlign': 'center',
-                             'fontSize': '10px', 'padding': '0px 5px',
-                             'lineHeight': '20px',
-                             'border': '2px solid rgb(240, 240, 240)'
-                         })
-                ], className="four columns"),
-            html.Div(id="curr_info"),
+                        html.Div([
+                           html.Div("WAVE", className = "three columns"),
+                           html.Div("FREQUENCY", className = "three columns"),
+                           html.Div("AMPLITUDE", className = "three columns"),
+                           html.Div("OFFSET", className = "three columns")
+                        ], className="row tings", style={'textAlign': 'center', 'display': 'flex',
+                               'width': '100%',
+                               'alignItems': 'center',
+                               'justifyContent': 'space-between', 'borderBottom': '1px solid rgb(240, 240, 240)'}),
+                         html.Div([
+                            html.Div(id="curr-wave", className = "three columns"),
+                            html.Div(id="curr-freq", className = "three columns"),
+                            html.Div(id="curr-ampl", className = "three columns"),
+                            html.Div(id="curr-off", className = "three columns")
+                         ], className="row tings", style={'textAlign': 'center', 'display': 'flex',
+                                'width': '100%',
+                                'alignItems': 'center',
+                                'justifyContent': 'space-between'}),
+                ], className="six columns"),
             html.Button('+',
                         id='new_tab',
                         type='submit',
@@ -198,18 +211,18 @@ app.layout = html.Div(id='container', children=[
             figure=dict(
                 data=[dict(x=np.linspace(-0.000045, 0.000045, 1e3),
                            y=[0] * len(np.linspace(-0.000045, 0.000045, 1e3)),
-                           marker={'color': 'rgb(68, 126, 255)'})],
+                           marker={'color': '#2a3f5f'})],
                 layout=go.Layout(
-                    xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
+                    xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
                         family='Dosis',
                         size=15,
                     )},
-                    yaxis={'title': 'Voltage (V)', 'titlefont': dict(
+                    yaxis={'title': 'Voltage (V)', 'color': '#506784', 'titlefont': dict(
                         family='Dosis',
                         size=15,
-                    )},
+                    ), 'autorange': False, 'range': [-10, 10]},
                     margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                    plot_bgcolor='rgb(240, 240, 240)',
+                    plot_bgcolor='#F3F6FA',
                 )
             ),
             config={'displayModeBar': True,
@@ -320,13 +333,40 @@ def update_offPI(value):
     return value
 
 
-@app.callback(Output('details', 'children'),
+@app.callback(Output('curr-wave', 'children'),
               [Input('oscope', 'figure'),
                Input('tabs', 'value')])
-def update_details(_, value):
+def update_wave(_, value):
     if '' + str(value) in runs:
-        return runs['' + str(value)][1]
-    return "NO DATA"
+        return (runs['' + str(value)][1]).split('|')[0]
+    return "-"
+
+
+@app.callback(Output('curr-freq', 'children'),
+              [Input('oscope', 'figure'),
+               Input('tabs', 'value')])
+def update_wave(_, value):
+    if '' + str(value) in runs:
+        return (runs['' + str(value)][1]).split('|')[1]
+    return "-"
+
+
+@app.callback(Output('curr-ampl', 'children'),
+              [Input('oscope', 'figure'),
+               Input('tabs', 'value')])
+def update_wave(_, value):
+    if '' + str(value) in runs:
+        return (runs['' + str(value)][1]).split('|')[2]
+    return "-"
+
+
+@app.callback(Output('curr-off', 'children'),
+              [Input('oscope', 'figure'),
+               Input('tabs', 'value')])
+def update_wave(_, value):
+    if '' + str(value) in runs:
+        return (runs['' + str(value)][1]).split('|')[3]
+    return "-"
 
 
 @app.callback(Output('oscope', 'figure'),
@@ -339,21 +379,20 @@ def update_details(_, value):
                Input('fnct_power', 'on')])
 def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
     global tab
-
     time = np.linspace(-0.000045, 0.000045, 1e3)
     zero = dict(
-        data=[dict(x=time, y=[0] * len(time), marker={'color': '#1d1d1d'})],
+        data=[dict(x=time, y=[0] * len(time), marker={'color': '#2a3f5f'})],
         layout=go.Layout(
-            xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
+            xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
                 family='Dosis',
                 size=15,
             )},
-            yaxis={'title': 'Voltage (V)', 'titlefont': dict(
+            yaxis={'title': 'Voltage (V)', 'color': '#506784', 'titlefont': dict(
                 family='Dosis',
                 size=15,
             )},
             margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-            plot_bgcolor='rgb(240, 240, 240)',
+            plot_bgcolor='#F3F6FA',
         )
     )
 
@@ -361,16 +400,16 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
         return dict(
             data=[],
             layout=go.Layout(
-                xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
+                xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
                     family='Dosis',
                     size=15,
                 ), 'showticklabels': False, 'ticks': '', 'zeroline': False},
-                yaxis={'title': 'Voltage (V)', 'titlefont': dict(
+                yaxis={'title': 'Voltage (V)', 'color': '#506784', 'titlefont': dict(
                     family='Dosis',
                     size=15,
                 ), 'showticklabels': False, 'zeroline': False},
                 margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                plot_bgcolor='rgb(0, 0, 0)',
+                plot_bgcolor='#506784',
             )
         )
 
@@ -403,23 +442,23 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
             y = float(offset) + 2*y - float(amplitude)
 
         figure = dict(
-            data=[dict(x=time, y=y, marker={'color': '#1d1d1d'})],
+            data=[dict(x=time, y=y, marker={'color': '#2a3f5f'})],
             layout=go.Layout(
-                xaxis={'type': 'linear', 'title': 's', 'titlefont': dict(
+                xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
                     family='Dosis',
                     size=15,
                 )},
-                yaxis={'title': 'Voltage (V)', 'titlefont': dict(
+                yaxis={'title': 'Voltage (V)', 'color': '#506784', 'titlefont': dict(
                     family='Dosis',
                     size=15,
-                )},
+                ), 'autorange': False, 'range': [-10, 10]},
                 margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                plot_bgcolor='rgb(240, 240, 240)',
+                plot_bgcolor='#F3F6FA',
             )
         )
 
-        runs['' + str(value)] = figure, str(wave) + "\t" + str(frequency) +  \
-            " Hz" + "\t" + str(amplitude) + "mV"
+        runs['' + str(value)] = figure, str(wave) + "|" + str(frequency) +  \
+            " Hz" + "|" + str(amplitude) + "mV" + "|" + str(offset) + "mV"
 
         return figure
 
