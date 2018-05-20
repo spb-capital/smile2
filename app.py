@@ -44,7 +44,7 @@ app.layout = html.Div(id='container', children=[
                             on='true',
                             label="Function Generator",
                             labelPosition='bottom',
-                            color="#447EFF")
+                            color="#447EFF"),
                     ],
                     className='six columns',
                     style={'margin-bottom': '15px'}),
@@ -154,8 +154,10 @@ app.layout = html.Div(id='container', children=[
             ], className='row power-settings-tab'),
         html.Hr(),
         daq.ToggleSwitch(
+            id='theme-toggle',
             label=["Light","Dark"],
-            color="#2a3f5f"
+            color="#2a3f5f",
+            value=False
         ),
         daq.ColorPicker(
             id="color-picker",
@@ -164,7 +166,7 @@ app.layout = html.Div(id='container', children=[
             size=164,
             theme={'dark': True}
         ),
-    ], className='four columns left-tab'),
+    ], className='four columns left-tab', id='left'),
 
 
     # RIGHT SIDE
@@ -180,20 +182,14 @@ app.layout = html.Div(id='container', children=[
         html.Div([
             html.Div([
                         html.Div([
-                           html.Div("WAVE", className = "three columns"),
-                           html.Div("FREQUENCY", className = "three columns"),
-                           html.Div("AMPLITUDE", className = "three columns"),
-                           html.Div("OFFSET", className = "three columns")
-                        ], className="row tings", style={'textAlign': 'center', 'display': 'flex',
+                           html.Div(name, className="three columns") for name in ["WAVE", "FREQUENCY", "AMPLITUDE", "OFFSET"]
+                        ], className="row param-labels", style={'textAlign': 'center', 'display': 'flex',
                                'width': '100%',
                                'alignItems': 'center',
                                'justifyContent': 'space-between', 'borderBottom': '1px solid rgb(240, 240, 240)'}),
                          html.Div([
-                            html.Div(id="curr-wave", className = "three columns"),
-                            html.Div(id="curr-freq", className = "three columns"),
-                            html.Div(id="curr-ampl", className = "three columns"),
-                            html.Div(id="curr-off", className = "three columns")
-                         ], className="row tings", style={'textAlign': 'center', 'display': 'flex',
+                            html.Div(id=name, className="three columns") for name in ["curr-wave", "curr-freq", "curr-ampl", "curr-off"]
+                         ], className="row graph-params", style={'textAlign': 'center', 'display': 'flex',
                                 'width': '100%',
                                 'alignItems': 'center',
                                 'justifyContent': 'space-between'}),
@@ -204,8 +200,9 @@ app.layout = html.Div(id='container', children=[
                         style={'height': '20px', 'width': '20px',
                                'padding': '0px', 'lineHeight': '10px',
                                'float': 'right'}),
-        ], className='row graph-info', style={'margin': '15px'}),
+        ], className='row oscope-settings', style={'margin': '15px'}),
         html.Hr(),
+        html.Div(id="tester"),
         dcc.Graph(
             id='oscope',
             figure=dict(
@@ -235,6 +232,61 @@ app.layout = html.Div(id='container', children=[
         )
     ], className='seven columns graph'),
 ])
+
+
+@app.callback(Output('frequency_input', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
+
+@app.callback(Output('amplitude_input', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
+
+@app.callback(Output('offset_input', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
+
+@app.callback(Output('freq', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
+
+@app.callback(Output('ampl', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
+
+@app.callback(Output('off', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
+
+@app.callback(Output('color-picker', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
+
+@app.callback(Output('theme-toggle', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
+
+@app.callback(Output('fnct-power', 'theme'),
+              [Input('theme-toggle', 'value')])
+def dark(value):
+    return dict(dark = value)
+
 
 
 @app.callback(Output('freq', 'color'),
