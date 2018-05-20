@@ -182,14 +182,20 @@ app.layout = html.Div(id='container', children=[
         html.Div([
             html.Div([
                         html.Div([
-                           html.Div(name, className="three columns") for name in ["WAVE", "FREQUENCY", "AMPLITUDE", "OFFSET"]
-                        ], className="row param-labels", style={'textAlign': 'center', 'display': 'flex',
+                           html.Div("WAVE", className = "three columns"),
+                           html.Div("FREQUENCY", className = "three columns"),
+                           html.Div("AMPLITUDE", className = "three columns"),
+                           html.Div("OFFSET", className = "three columns")
+                        ], className="row graph-param-labels", style={'textAlign': 'center', 'display': 'flex',
                                'width': '100%',
                                'alignItems': 'center',
                                'justifyContent': 'space-between', 'borderBottom': '1px solid rgb(240, 240, 240)'}),
                          html.Div([
-                            html.Div(id=name, className="three columns") for name in ["curr-wave", "curr-freq", "curr-ampl", "curr-off"]
-                         ], className="row graph-params", style={'textAlign': 'center', 'display': 'flex',
+                            html.Div(id="curr-wave", className = "three columns"),
+                            html.Div(id="curr-freq", className = "three columns"),
+                            html.Div(id="curr-ampl", className = "three columns"),
+                            html.Div(id="curr-off", className = "three columns")
+                         ], className="row graph-param", style={'textAlign': 'center', 'display': 'flex',
                                 'width': '100%',
                                 'alignItems': 'center',
                                 'justifyContent': 'space-between'}),
@@ -200,7 +206,7 @@ app.layout = html.Div(id='container', children=[
                         style={'height': '20px', 'width': '20px',
                                'padding': '0px', 'lineHeight': '10px',
                                'float': 'right'}),
-        ], className='row oscope-settings', style={'margin': '15px'}),
+        ], className='row oscope-info', style={'margin': '15px'}),
         html.Hr(),
         html.Div(id="tester"),
         dcc.Graph(
