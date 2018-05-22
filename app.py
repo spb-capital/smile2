@@ -7,6 +7,8 @@ import numpy as np
 import dash_core_components as dcc
 import plotly.graph_objs as go
 from scipy import signal
+from time import sleep
+import os
 
 app = dash.Dash()
 
@@ -373,43 +375,7 @@ def update_offset_display(value):
 def update_wave(_, value):
     if '' + str(value) in runs:
         return (runs['' + str(value)][1])
-        # return (runs['' + str(value)][1]).split('|')
     return "-"
-
-
-# @app.callback(Output('curr_wave', 'children'),
-#               [Input('oscope', 'figure'),
-#                Input('tabs', 'value')])
-# def update_wave(_, value):
-#     if '' + str(value) in runs:
-#         return (runs['' + str(value)][1]).split('|')[0]
-#     return "-"
-#
-#
-# @app.callback(Output('curr_frequency', 'children'),
-#               [Input('tabs', 'value')])
-# def update_wave(value):
-#     if '' + str(value) in runs:
-#         return (runs['' + str(value)][1]).split('|')[1]
-#     return "-"
-#
-#
-# @app.callback(Output('curr_amplitude', 'children'),
-#               [Input('oscope', 'figure'),
-#                Input('tabs', 'value')])
-# def update_wave(_, value):
-#     if '' + str(value) in runs:
-#         return (runs['' + str(value)][1]).split('|')[2]
-#     return "-"
-#
-#
-# @app.callback(Output('curr_offset', 'children'),
-#               [Input('oscope', 'figure'),
-#                Input('tabs', 'value')])
-# def update_wave(_, value):
-#     if '' + str(value) in runs:
-#         return (runs['' + str(value)][1]).split('|')[3]
-#     return "-"
 
 
 @app.callback(Output('oscope', 'figure'),
@@ -503,6 +469,9 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
         runs['' + str(value)] = figure, str(wave) + " | " + str(frequency) +  \
              "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
 
+        # wait to update the runs variable
+        sleep(0.10)
+
         return figure
 
 
@@ -522,6 +491,11 @@ external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
 
 for css in external_css:
     app.css.append_css({"external_url": css})
+
+if 'DYNO' in os.environ:
+    app.scripts.append_script({
+        'external_url': 'https://cdn.rawgit.com/chriddyp/ca0d8f02a1659981a0ea7f013a378bbd/raw/e79f3f789517deec58f41251f7dbb6bee72c44ab/plotly_ga.js'
+    })
 
 if __name__ == '__main__':
     app.run_server(port=8000, debug=True)
