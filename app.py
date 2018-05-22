@@ -8,11 +8,10 @@ import dash_core_components as dcc
 import plotly.graph_objs as go
 from scipy import signal
 
-
 app = dash.Dash()
 
 app.scripts.config.serve_locally = True
-app.config['suppress_callback_exceptions'] = True
+# app.config['suppress_callback_exceptions'] = True
 
 server = app.server
 
@@ -25,11 +24,11 @@ tab = 1
 runs = {}
 
 app.layout = html.Div(id='container', children=[
-    # LEFT SIDE
+    # Function Generator Panel - Left
     html.Div([
         html.H2("Dash DAQ: Function Generator & Oscilloscope Control Panel",
                 style={'marginLeft': '40px'}),
-    ], className='banner', id="header"),
+    ], className='banner', id='header'),
 
     html.Div([
         html.Div([
@@ -75,7 +74,8 @@ app.layout = html.Div(id='container', children=[
                     color="#447EFF",
                     scale={'interval': 1E5},
                     max=2.5E6,
-                    min=1E5
+                    min=1E5,
+                    className='four columns'
                 ),
                 daq.Knob(
                     value=1,
@@ -86,6 +86,7 @@ app.layout = html.Div(id='container', children=[
                     scale={'labelInterval': 10},
                     color="#447EFF",
                     max=10,
+                    className='four columns'
                 ),
                 daq.Knob(
                     value=0,
@@ -96,46 +97,34 @@ app.layout = html.Div(id='container', children=[
                     scale={'labelInterval': 10},
                     color="#447EFF",
                     max=10,
-                )],
-                     style={
-                         'margin': '0 auto',
-                         'display': 'flex',
-                         'width': '80%',
-                         'alignItems': 'center',
-                         'justifyContent': 'center'
-                         }),
+                    className='four columns'
+                )], style={'marginLeft': '20%', 'textAlign': 'center'}),
             html.Div([
                 daq.LEDDisplay(
-                    id='freq',
+                    id='frequency_display',
                     size=10, value=1E6,
                     label="Frequency (Hz)",
                     labelPosition="bottom",
                     color="#447EFF",
-                    style={'textAlign': 'center'}),
+                    style={'marginBottom': '30px'},
+                    className='four columns'),
                 daq.LEDDisplay(
-                    id='ampl',
+                    id='amplitude_display',
                     size=10,
                     value=1,
                     label="Amplitude (mV)",
                     labelPosition="bottom",
                     color="#447EFF",
-                    style={'textAlign': 'center'}),
+                    className='four columns'),
                 daq.LEDDisplay(
-                    id='off',
+                    id='offset_display',
                     size=10,
                     value=10,
                     label="Offset (mV)",
                     labelPosition="bottom",
                     color="#447EFF",
-                    style={'textAlign': 'center'}),
-            ], style={
-                'margin': '0 auto',
-                'display': 'flex',
-                'width': '80%',
-                'alignItems': 'center',
-                'justifyContent': 'space-between'
-                }),
-
+                    className='four columns'),
+            ], style={'marginLeft': '20%', 'textAlign': 'center'}),
             dcc.RadioItems(
                 id='function_type',
                 options=[
@@ -154,22 +143,22 @@ app.layout = html.Div(id='container', children=[
             ], className='row power-settings-tab'),
         html.Hr(),
         daq.ToggleSwitch(
-            id='theme-toggle',
+            id='theme_toggle',
             label=["Light","Dark"],
             color="#2a3f5f",
-            value=False
+            value=False,
+            style={'width': '60%', 'margin': '0px auto'}
         ),
         daq.ColorPicker(
-            id="color-picker",
+            id="color_picker",
             label="Color Picker",
             value=dict(hex="#447EFF"),
             size=164,
             theme={'dark': True}
         ),
-    ], className='four columns left-tab', id='left'),
+    ], className='four columns left-panel'),
 
-
-    # RIGHT SIDE
+    # Oscillator Panel - Right
     html.Div([
         html.Div([html.H3("GRAPH", id="graph_title")], className='Title'),
         dcc.Tabs(
@@ -181,18 +170,9 @@ app.layout = html.Div(id='container', children=[
 
         html.Div([
             html.Div([
-                        html.Div([
-                            html.Div(param, className="three columns") for param in ["WAVE", "FREQUENCY", "AMPLITUDE", "OFFSET"]
-                        ], className="row graph-param-labels", style={'textAlign': 'center', 'display': 'flex',
-                               'width': '100%',
-                               'alignItems': 'center',
-                               'justifyContent': 'space-between', 'borderBottom': '1px solid rgb(240, 240, 240)'}),
                          html.Div([
-                            html.Div(id=param, className="three columns") for param in ["curr-wave", "curr-freq", "curr-ampl", "curr-off"]
-                         ], className="row graph-param", style={'textAlign': 'center', 'display': 'flex',
-                                'width': '100%',
-                                'alignItems': 'center',
-                                'justifyContent': 'space-between'}),
+                            html.Div(id="graph_info"),
+                         ], className="row graph-param"),
                 ], className="six columns"),
             html.Button('+',
                         id='new_tab',
@@ -229,195 +209,201 @@ app.layout = html.Div(id='container', children=[
                                                'hoverClosestCartesian',
                                                'hoverCompareCartesian']}
         )
-    ], className='seven columns graph'),
+    ], className='seven columns right-panel')
 ])
 
 
+# Callbacks for dark theme toggle
 @app.callback(Output('frequency_input', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
+              [Input('theme_toggle', 'value')])
+def dark_frequency_input(value):
     return dict(dark = value)
 
 
 @app.callback(Output('amplitude_input', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
+              [Input('theme_toggle', 'value')])
+def dark_amplitude_input(value):
     return dict(dark = value)
 
 
 @app.callback(Output('offset_input', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
+              [Input('theme_toggle', 'value')])
+def dark_offset_input(value):
     return dict(dark = value)
 
 
-@app.callback(Output('freq', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
+@app.callback(Output('frequency_display', 'theme'),
+              [Input('theme_toggle', 'value')])
+def dark_frequency_display(value):
     return dict(dark = value)
 
 
-@app.callback(Output('ampl', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
+@app.callback(Output('amplitude_display', 'theme'),
+              [Input('theme_toggle', 'value')])
+def dark_amplitude_display(value):
     return dict(dark = value)
 
 
-@app.callback(Output('off', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
+@app.callback(Output('offset_display', 'theme'),
+              [Input('theme_toggle', 'value')])
+def dark_offset_display(value):
     return dict(dark = value)
 
 
-@app.callback(Output('color-picker', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
+@app.callback(Output('color_picker', 'theme'),
+              [Input('theme_toggle', 'value')])
+def dark_color_picker(value):
     return dict(dark = value)
 
 
-@app.callback(Output('theme-toggle', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
+@app.callback(Output('theme_toggle', 'theme'),
+              [Input('theme_toggle', 'value')])
+def dark_toggle(value):
     return dict(dark = value)
 
 
-@app.callback(Output('fnct-power', 'theme'),
-              [Input('theme-toggle', 'value')])
-def dark(value):
-    return dict(dark = value)
-
-
-
-@app.callback(Output('freq', 'color'),
-              [Input('color-picker', 'value')])
-def frequency_display(color):
-    return color['hex']
-
-
-@app.callback(Output('ampl', 'color'),
-              [Input('color-picker', 'value')])
-def amplitude_display(color):
-    return color['hex']
-
-
-@app.callback(Output('off', 'color'),
-              [Input('color-picker', 'value')])
-def offset_display(color):
-    return color['hex']
-
-
-@app.callback(Output('tabs', 'style'),
-              [Input('color-picker', 'value')])
-def tabs_background(color):
-    return {'backgroundColor': color['hex']}
-
-
-@app.callback(Output('power_title', 'style'),
-              [Input('color-picker', 'value')])
-def power_title(color):
-    return {'color': color['hex']}
-
-
-@app.callback(Output('function_title', 'style'),
-              [Input('color-picker', 'value')])
-def function_title(color):
-    return {'color': color['hex']}
-
-
-@app.callback(Output('graph_title', 'style'),
-              [Input('color-picker', 'value')])
-def graph_title(color):
-    return {'color': color['hex']}
-
-
-@app.callback(Output('fnct_power', 'color'),
-              [Input('color-picker', 'value')])
-def fnct_style(color):
-    return color['hex']
-
-
-@app.callback(Output('osc_power', 'color'),
-              [Input('color-picker', 'value')])
-def osc_style(color):
-    return color['hex']
-
-
-@app.callback(Output('header', 'style'),
-              [Input('color-picker', 'value')])
-def update_header(color):
-    return {'backgroundColor': color['hex']}
-
-
+# Callbacks for color picker
 @app.callback(Output('frequency_input', 'color'),
-              [Input('color-picker', 'value')])
-def set_freq_color(color):
+              [Input('color_picker', 'value')])
+def color_frequency_input(color):
     return color['hex']
 
 
 @app.callback(Output('amplitude_input', 'color'),
-              [Input('color-picker', 'value')])
-def set_amplitude_color(color):
+              [Input('color_picker', 'value')])
+def color_amplitude_input(color):
     return color['hex']
 
 
 @app.callback(Output('offset_input', 'color'),
-              [Input('color-picker', 'value')])
-def set_offset_color(color):
+              [Input('color_picker', 'value')])
+def color_offset_input(color):
     return color['hex']
 
 
-@app.callback(Output('ampl', 'value'),
+@app.callback(Output('frequency_display', 'color'),
+              [Input('color_picker', 'value')])
+def color_frequency_display(color):
+    return color['hex']
+
+
+@app.callback(Output('amplitude_display', 'color'),
+              [Input('color_picker', 'value')])
+def color_amplitude_display(color):
+    return color['hex']
+
+
+@app.callback(Output('offset_display', 'color'),
+              [Input('color_picker', 'value')])
+def color_offset_display(color):
+    return color['hex']
+
+
+@app.callback(Output('tabs', 'style'),
+              [Input('color_picker', 'value')])
+def color_tabs_background(color):
+    return {'backgroundColor': color['hex']}
+
+
+@app.callback(Output('power_title', 'style'),
+              [Input('color_picker', 'value')])
+def color_power_title(color):
+    return {'color': color['hex']}
+
+
+@app.callback(Output('function_title', 'style'),
+              [Input('color_picker', 'value')])
+def color_function_title(color):
+    return {'color': color['hex']}
+
+
+@app.callback(Output('graph_title', 'style'),
+              [Input('color_picker', 'value')])
+def color_graph_title(color):
+    return {'color': color['hex']}
+
+
+@app.callback(Output('fnct_power', 'color'),
+              [Input('color_picker', 'value')])
+def color_fnct_power(color):
+    return color['hex']
+
+
+@app.callback(Output('osc_power', 'color'),
+              [Input('color_picker', 'value')])
+def color_osc_power(color):
+    return color['hex']
+
+
+@app.callback(Output('header', 'style'),
+              [Input('color_picker', 'value')])
+def color_banner(color):
+    return {'backgroundColor': color['hex']}
+
+
+# Callbacks for knob inputs
+@app.callback(Output('amplitude_display', 'value'),
               [Input('amplitude_input', 'value')],)
-def update_amplPI(value):
+def update_amplitude_display(value):
     return value
 
 
-@app.callback(Output('freq', 'value'),
+@app.callback(Output('frequency_display', 'value'),
               [Input('frequency_input', 'value')],)
-def update_freqPI(value):
+def update_frequency_display(value):
     return value
 
 
-@app.callback(Output('off', 'value'),
+@app.callback(Output('offset_display', 'value'),
               [Input('offset_input', 'value')])
-def update_offPI(value):
+def update_offset_display(value):
     return value
 
 
-@app.callback(Output('curr-wave', 'children'),
+# Callbacks graph and graph info
+@app.callback(Output('graph_info', 'children'),
               [Input('oscope', 'figure'),
                Input('tabs', 'value')])
 def update_wave(_, value):
     if '' + str(value) in runs:
-        return (runs['' + str(value)][1]).split('|')[0]
+        return (runs['' + str(value)][1])
+        # return (runs['' + str(value)][1]).split('|')
     return "-"
 
 
-@app.callback(Output('curr-freq', 'children'),
-              [Input('oscope', 'figure'),
-               Input('tabs', 'value')])
-def update_wave(_, value):
-    if '' + str(value) in runs:
-        return (runs['' + str(value)][1]).split('|')[1]
-    return "-"
-
-
-@app.callback(Output('curr-ampl', 'children'),
-              [Input('oscope', 'figure'),
-               Input('tabs', 'value')])
-def update_wave(_, value):
-    if '' + str(value) in runs:
-        return (runs['' + str(value)][1]).split('|')[2]
-    return "-"
-
-
-@app.callback(Output('curr-off', 'children'),
-              [Input('oscope', 'figure'),
-               Input('tabs', 'value')])
-def update_wave(_, value):
-    if '' + str(value) in runs:
-        return (runs['' + str(value)][1]).split('|')[3]
-    return "-"
+# @app.callback(Output('curr_wave', 'children'),
+#               [Input('oscope', 'figure'),
+#                Input('tabs', 'value')])
+# def update_wave(_, value):
+#     if '' + str(value) in runs:
+#         return (runs['' + str(value)][1]).split('|')[0]
+#     return "-"
+#
+#
+# @app.callback(Output('curr_frequency', 'children'),
+#               [Input('tabs', 'value')])
+# def update_wave(value):
+#     if '' + str(value) in runs:
+#         return (runs['' + str(value)][1]).split('|')[1]
+#     return "-"
+#
+#
+# @app.callback(Output('curr_amplitude', 'children'),
+#               [Input('oscope', 'figure'),
+#                Input('tabs', 'value')])
+# def update_wave(_, value):
+#     if '' + str(value) in runs:
+#         return (runs['' + str(value)][1]).split('|')[2]
+#     return "-"
+#
+#
+# @app.callback(Output('curr_offset', 'children'),
+#               [Input('oscope', 'figure'),
+#                Input('tabs', 'value')])
+# def update_wave(_, value):
+#     if '' + str(value) in runs:
+#         return (runs['' + str(value)][1]).split('|')[3]
+#     return "-"
 
 
 @app.callback(Output('oscope', 'figure'),
@@ -508,24 +494,10 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
             )
         )
 
-        runs['' + str(value)] = figure, str(wave) + "|" + str(frequency) +  \
-            " Hz" + "|" + str(amplitude) + "mV" + "|" + str(offset) + "mV"
+        runs['' + str(value)] = figure, "WAVE: " + str(wave) + ", " + " " + " " + " " + "FREQUENCY: " + str(frequency) +  \
+             "Hz" + ", " + "Amplitude: " + str(amplitude) + "mV" + ", " + "OFFSET: " + str(offset) + "mV"
 
         return figure
-
-
-@app.callback(
-    Output('fnct_indicator', 'value'),
-    [Input('fnct_power', 'on')])
-def fnct_indication(on):
-    return on
-
-
-@app.callback(
-    Output('osc_indicator', 'value'),
-    [Input('osc_power', 'on')])
-def osc_indication(on):
-    return on
 
 
 @app.callback(Output('tabs', 'tabs'),
@@ -539,8 +511,7 @@ def new_tabs(n_clicks):
 
 
 external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
-                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/" +
-                "09e3a2ee/dash-tektronix-350.css",
+                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/2ce724f9/dash-tektronix-350.css",
                 "https://fonts.googleapis.com/css?family=Dosis"]
 
 for css in external_css:
