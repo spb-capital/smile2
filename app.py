@@ -182,19 +182,13 @@ app.layout = html.Div(id='container', children=[
         html.Div([
             html.Div([
                         html.Div([
-                           html.Div("WAVE", className = "three columns"),
-                           html.Div("FREQUENCY", className = "three columns"),
-                           html.Div("AMPLITUDE", className = "three columns"),
-                           html.Div("OFFSET", className = "three columns")
+                            html.Div(param, className="three columns") for param in ["WAVE", "FREQUENCY", "AMPLITUDE", "OFFSET"]
                         ], className="row graph-param-labels", style={'textAlign': 'center', 'display': 'flex',
                                'width': '100%',
                                'alignItems': 'center',
                                'justifyContent': 'space-between', 'borderBottom': '1px solid rgb(240, 240, 240)'}),
                          html.Div([
-                            html.Div(id="curr-wave", className = "three columns"),
-                            html.Div(id="curr-freq", className = "three columns"),
-                            html.Div(id="curr-ampl", className = "three columns"),
-                            html.Div(id="curr-off", className = "three columns")
+                            html.Div(id=param, className="three columns") for param in ["curr-wave", "curr-freq", "curr-ampl", "curr-off"]
                          ], className="row graph-param", style={'textAlign': 'center', 'display': 'flex',
                                 'width': '100%',
                                 'alignItems': 'center',
@@ -208,7 +202,6 @@ app.layout = html.Div(id='container', children=[
                                'float': 'right'}),
         ], className='row oscope-info', style={'margin': '15px'}),
         html.Hr(),
-        html.Div(id="tester"),
         dcc.Graph(
             id='oscope',
             figure=dict(
