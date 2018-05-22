@@ -165,20 +165,20 @@ app.layout = html.Div(id='container', children=[
             tabs=tabs,
             value=1,
             id='tabs',
-            style={'backgroundColor': '#119DFF', 'height': '80%'},
+            style={'backgroundColor': '#447EFF', 'height': '80%'},
         ),
 
         html.Div([
             html.Div([
                          html.Div([
-                            html.Div(id="graph_info"),
+                            html.Div(id="graph_info", style = {'textAlign': 'center', 'fontSize': '16px', 'padding': '0px 5px', 'lineHeight': '20px', 'border': '2px solid #447EFF'}),
                          ], className="row graph-param"),
                 ], className="six columns"),
             html.Button('+',
                         id='new_tab',
                         type='submit',
                         style={'height': '20px', 'width': '20px',
-                               'padding': '0px', 'lineHeight': '10px',
+                               'padding': '2px', 'lineHeight': '10px',
                                'float': 'right'}),
         ], className='row oscope-info', style={'margin': '15px'}),
         html.Hr(),
@@ -297,6 +297,12 @@ def color_amplitude_display(color):
               [Input('color_picker', 'value')])
 def color_offset_display(color):
     return color['hex']
+
+
+@app.callback(Output('graph_info', 'style'),
+              [Input('color_picker', 'value')])
+def color_tabs_background(color):
+    return {'textAlign': 'center', 'border': "2px solid " + color['hex']}
 
 
 @app.callback(Output('tabs', 'style'),
@@ -494,8 +500,8 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
             )
         )
 
-        runs['' + str(value)] = figure, "WAVE: " + str(wave) + ", " + " " + " " + " " + "FREQUENCY: " + str(frequency) +  \
-             "Hz" + ", " + "Amplitude: " + str(amplitude) + "mV" + ", " + "OFFSET: " + str(offset) + "mV"
+        runs['' + str(value)] = figure, str(wave) + " | " + str(frequency) +  \
+             "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
 
         return figure
 
