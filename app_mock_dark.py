@@ -294,12 +294,6 @@ def color_osc_power(color):
     return color['hex']
 
 
-@app.callback(Output('header', 'style'),
-              [Input('color_picker', 'value')])
-def color_banner(color):
-    return {'backgroundColor': color['hex']}
-
-
 # Callbacks for knob inputs
 @app.callback(Output('frequency_display', 'value'),
               [Input('frequency_input', 'value')],)
