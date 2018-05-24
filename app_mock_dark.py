@@ -33,8 +33,8 @@ app.layout = DarkThemeProvider([
     # Function Generator Panel - Left
     html.Div([
         html.H2("Dash DAQ: Function Generator & Oscilloscope Control Panel",
-                style={'marginLeft': '40px'}),
-        html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/excel/dash-daq/dash-daq-logo-by-plotly-stripe.png")
+                style={'color': 'white', 'marginLeft': '40px'}),
+        html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png")
 
     ], className='banner', id='header'),
 
@@ -301,15 +301,15 @@ def color_banner(color):
 
 
 # Callbacks for knob inputs
-@app.callback(Output('amplitude_display', 'value'),
-              [Input('amplitude_input', 'value')],)
-def update_amplitude_display(value):
-    return value
-
-
 @app.callback(Output('frequency_display', 'value'),
               [Input('frequency_input', 'value')],)
 def update_frequency_display(value):
+    return value
+
+
+@app.callback(Output('amplitude_display', 'value'),
+              [Input('amplitude_input', 'value')],)
+def update_amplitude_display(value):
     return value
 
 
