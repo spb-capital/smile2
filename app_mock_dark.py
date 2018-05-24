@@ -440,7 +440,7 @@ def new_tabs(n_clicks):
 
 
 external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
-                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/59e2a539/dash-tektronix-350-dark.css",
+                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/9853c2e2/dash-tektronix-350-dark.css",
                 "https://fonts.googleapis.com/css?family=Dosis"]
 
 for css in external_css:
