@@ -13,7 +13,7 @@ import os
 app = dash.Dash()
 
 app.scripts.config.serve_locally = True
-# app.config['suppress_callback_exceptions'] = True
+app.config['suppress_callback_exceptions'] = True
 
 server = app.server
 
@@ -30,6 +30,7 @@ app.layout = html.Div(id='container', children=[
     html.Div([
         html.H2("Dash DAQ: Function Generator & Oscilloscope Control Panel",
                 style={'marginLeft': '40px'}),
+        html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png")
     ], className='banner', id='header'),
 
     html.Div([
@@ -215,55 +216,6 @@ app.layout = html.Div(id='container', children=[
 ])
 
 
-# Callbacks for dark theme toggle
-@app.callback(Output('frequency_input', 'theme'),
-              [Input('theme_toggle', 'value')])
-def dark_frequency_input(value):
-    return dict(dark = value)
-
-
-@app.callback(Output('amplitude_input', 'theme'),
-              [Input('theme_toggle', 'value')])
-def dark_amplitude_input(value):
-    return dict(dark = value)
-
-
-@app.callback(Output('offset_input', 'theme'),
-              [Input('theme_toggle', 'value')])
-def dark_offset_input(value):
-    return dict(dark = value)
-
-
-@app.callback(Output('frequency_display', 'theme'),
-              [Input('theme_toggle', 'value')])
-def dark_frequency_display(value):
-    return dict(dark = value)
-
-
-@app.callback(Output('amplitude_display', 'theme'),
-              [Input('theme_toggle', 'value')])
-def dark_amplitude_display(value):
-    return dict(dark = value)
-
-
-@app.callback(Output('offset_display', 'theme'),
-              [Input('theme_toggle', 'value')])
-def dark_offset_display(value):
-    return dict(dark = value)
-
-
-@app.callback(Output('color_picker', 'theme'),
-              [Input('theme_toggle', 'value')])
-def dark_color_picker(value):
-    return dict(dark = value)
-
-
-@app.callback(Output('theme_toggle', 'theme'),
-              [Input('theme_toggle', 'value')])
-def dark_toggle(value):
-    return dict(dark = value)
-
-
 # Callbacks for color picker
 @app.callback(Output('frequency_input', 'color'),
               [Input('color_picker', 'value')])
@@ -350,15 +302,15 @@ def color_banner(color):
 
 
 # Callbacks for knob inputs
-@app.callback(Output('amplitude_display', 'value'),
-              [Input('amplitude_input', 'value')],)
-def update_amplitude_display(value):
-    return value
-
-
 @app.callback(Output('frequency_display', 'value'),
               [Input('frequency_input', 'value')],)
 def update_frequency_display(value):
+    return value
+
+
+@app.callback(Output('amplitude_display', 'value'),
+              [Input('amplitude_input', 'value')],)
+def update_amplitude_display(value):
     return value
 
 
@@ -486,7 +438,7 @@ def new_tabs(n_clicks):
 
 
 external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
-                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/2ce724f9/dash-tektronix-350.css",
+                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/9853c2e2/dash-tektronix-350.css",
                 "https://fonts.googleapis.com/css?family=Dosis"]
 
 for css in external_css:
