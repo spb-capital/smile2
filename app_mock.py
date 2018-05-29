@@ -620,7 +620,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                    'titlefont': dict(
                        family='Dosis',
                        size=15,
-                   )},
+                   ), 'autorange': False, 'range': [-10, 10]},
             margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
             plot_bgcolor='#F3F6FA',
         )
@@ -662,7 +662,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                        'titlefont': dict(
                            family='Dosis',
                            size=15,
-                       )},
+                       ), 'autorange': False, 'range': [-10, 10]},
                 margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
                 plot_bgcolor='#F3F6FA',
             )
