@@ -51,10 +51,27 @@ light_layout = html.Div(id='container', children=[
     # Function Generator Panel - Left
     html.Div([
         html.H2("Dash DAQ: Function Generator & Oscilloscope Control Panel",
-                style={'marginLeft': '40px'}),
+                style={
+                    'color': '#EBF0F8',
+                    'marginLeft': '40px',
+                    'display': 'inline-block',
+                    'text-align': 'center'
+                }),
         html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/" +
-                 "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png")
-    ], className='banner', id='header'),
+                 "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png",
+                 style={
+                     'position': 'relative',
+                     'float': 'right',
+                     'right': '10px',
+                     'height': '75px'
+                 })
+    ], className='banner',
+             id='header',
+             style={
+                 'height': '75px',
+                 'margin': '0px -10px 10px',
+                 'backgroundColor': '#447EFF'
+             }),
 
     html.Div([
         html.Div([
@@ -173,7 +190,6 @@ light_layout = html.Div(id='container', children=[
             label="Color Picker",
             value=dict(hex="#447EFF"),
             size=164,
-            theme={'dark': True}
         ),
     ], className='four columns left-panel'),
 
@@ -242,16 +258,33 @@ light_layout = html.Div(id='container', children=[
 dark_layout = DarkThemeProvider([
     html.Link(
         href="https://cdn.rawgit.com/samisahn/" +
-        "dash-app-stylesheets/9853c2e2/dash-tektronix-350-dark.css",
+        "dash-app-stylesheets/dc60135a/dash-tektronix-350-dark.css",
         rel="stylesheet"
     ),
     # Function Generator Panel - Left
     html.Div([
         html.H2("Dash DAQ: Function Generator & Oscilloscope Control Panel",
-                style={'color': 'white', 'marginLeft': '40px'}),
+                style={
+                    'color': 'white',
+                    'marginLeft': '40px',
+                    'display': 'inline-block',
+                    'text-align': 'center'
+                }),
         html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/" +
-                 "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png")
-    ], className='banner', id='dark-header'),
+                 "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png",
+                 style={
+                     'position': 'relative',
+                     'float': 'right',
+                     'right': '10px',
+                     'height': '75px'
+                 })
+    ], className='banner',
+             id='dark-header',
+             style={
+                 'height': '75px',
+                 'margin': '0px -10px 10px',
+                 'backgroundColor': '#1d1d1d'
+             }),
 
     html.Div([
         html.Div([
@@ -861,7 +894,7 @@ def new_dtabs(n_clicks):
 
 external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
                 "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/" +
-                "9853c2e2/dash-tektronix-350.css",
+                "eccb1a1a/dash-tektronix-350.css",
                 "https://fonts.googleapis.com/css?family=Dosis"]
 
 for css in external_css:
