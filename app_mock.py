@@ -764,8 +764,8 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
         layout=go.Layout(
             xaxis={'title': 's', 'color': '#EBF0F8',
                    'titlefont': dict(
-                        family='Dosis',
-                        size=15,
+                       family='Dosis',
+                       size=15,
                    )},
             yaxis={'title': 'Voltage (V)', 'color': '#EBF0F8',
                    'titlefont': dict(
