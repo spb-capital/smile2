@@ -75,8 +75,7 @@ def set_wave(wave):
 
 # CHECK THIS - not tested
 def get_wave(wave):
-    if wave in ['SIN', 'SQUARE', 'RAMP', 'PULSE']:
-        write("FUNC " + wave)
+    return fgenerator.query("FUNC?")
 
 def write(command):
     fgenerator.write(command)
