@@ -3,15 +3,14 @@ from dash.dependencies import Input, Output
 import dash_daq as daq
 import dash_html_components as html
 
-import numpy as np
 import dash_core_components as dcc
 import plotly.graph_objs as go
-from scipy import signal
 from time import sleep
 import os
+import numpy as np
 
-import osc_tds350
-import fgen_afg3021
+import osc_tds350 as osc
+import fgen_afg3021 as fgen
 
 app = dash.Dash()
 
@@ -28,26 +27,27 @@ tab = 1
 
 runs = {}
 
-FGEN_AFG3021.open_port()
+fgen.open_port()
 
 app.layout = html.Div(id='container', children=[
     # Function Generator Panel - Left
     html.Div([
         html.H2("Dash DAQ: Function Generator & Oscilloscope Control Panel",
                 style={'marginLeft': '40px'}),
-        html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png")
+        html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/" +
+                 "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png")
     ], className='banner', id='header'),
 
     html.Div([
         html.Div([
             html.Div([
-                html.H3("POWER", id="power_title")
+                html.H3("POWER", id="power-title")
             ], className='Title'),
             html.Div([
                 html.Div(
                     [
                         daq.PowerButton(
-                            id='fnct_power',
+                            id='function-generator',
                             on='true',
                             label="Function Generator",
                             labelPosition='bottom',
@@ -58,7 +58,7 @@ app.layout = html.Div(id='container', children=[
                 html.Div(
                     [
                         daq.PowerButton(
-                            id='osc_power',
+                            id='oscilloscope',
                             on='true',
                             label="Oscilloscope",
                             labelPosition='bottom',
@@ -70,11 +70,11 @@ app.layout = html.Div(id='container', children=[
         ], className='row power-settings-tab'),
         html.Div([
             html.Div(
-                [html.H3("FUNCTION", id="function_title")],
+                [html.H3("FUNCTION", id="function-title")],
                 className='Title'),
             html.Div([
                 daq.Knob(
-                    value=FGEN_AFG3021.get_frequency(),
+                    value=fgen.get_frequency(),
                     id="frequency_input",
                     label="Frequency (Hz)",
                     labelPosition="bottom",
@@ -86,7 +86,7 @@ app.layout = html.Div(id='container', children=[
                     className='four columns'
                 ),
                 daq.Knob(
-                    value=FGEN_AFG3021.get_amplitude(),
+                    value=fgen.get_amplitude(),
                     id="amplitude_input",
                     label="Amplitude (mV)",
                     labelPosition="bottom",
@@ -97,7 +97,7 @@ app.layout = html.Div(id='container', children=[
                     className='four columns'
                 ),
                 daq.Knob(
-                    value=FGEN_AFG3021.get_offset(),
+                    value=fgen.get_offset(),
                     id="offset_input",
                     label="Offset (mV)",
                     labelPosition="bottom",
@@ -148,15 +148,8 @@ app.layout = html.Div(id='container', children=[
                 )
             ], className='row power-settings-tab'),
         html.Hr(),
-        daq.ToggleSwitch(
-            id='theme_toggle',
-            label=["Light","Dark"],
-            color="#2a3f5f",
-            value=False,
-            style={'width': '60%', 'margin': '0px auto'}
-        ),
         daq.ColorPicker(
-            id="color_picker",
+            id="color-picker",
             label="Color Picker",
             value=dict(hex="#447EFF"),
             size=164,
@@ -166,7 +159,7 @@ app.layout = html.Div(id='container', children=[
 
     # Oscillator Panel - Right
     html.Div([
-        html.Div([html.H3("GRAPH", id="graph_title")], className='Title'),
+        html.Div([html.H3("GRAPH", id="graph-title")], className='Title'),
         dcc.Tabs(
             tabs=tabs,
             value=1,
@@ -176,10 +169,17 @@ app.layout = html.Div(id='container', children=[
 
         html.Div([
             html.Div([
-                         html.Div([
-                            html.Div(id="graph_info", style = {'textAlign': 'center', 'fontSize': '16px', 'padding': '0px 5px', 'lineHeight': '20px', 'border': '2px solid #447EFF'}),
-                         ], className="row graph-param"),
-                ], className="six columns"),
+                html.Div([
+                    html.Div(
+                        id="graph_info",
+                        style={
+                            'textAlign': 'center',
+                            'fontSize': '16px',
+                            'padding': '0px 5px',
+                            'lineHeight': '20px',
+                            'border': '2px solid #447EFF'}),
+                 ], className="row graph-param"),
+            ], className="six columns"),
             html.Button('+',
                         id='new_tab',
                         type='submit',
@@ -189,18 +189,20 @@ app.layout = html.Div(id='container', children=[
         ], className='row oscope-info', style={'margin': '15px'}),
         html.Hr(),
         dcc.Graph(
-            id='oscope',
+            id='oscope-graph',
             figure=dict(
-                data=OSC_TDS350.get_data(),
+                data=osc.get_data(),
                 layout=go.Layout(
-                    xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
-                        family='Dosis',
-                        size=15,
-                    )},
-                    yaxis={'title': 'Voltage (V)', 'color': '#506784', 'titlefont': dict(
-                        family='Dosis',
-                        size=15,
-                    ), 'autorange': False, 'range': [-10, 10]},
+                    xaxis={'title': 's', 'color': '#506784',
+                           'titlefont': dict(
+                               family='Dosis',
+                               size=15,
+                           )},
+                    yaxis={'title': 'Voltage (V)', 'color': '#506784',
+                           'titlefont': dict(
+                               family='Dosis',
+                               size=15,
+                            ), 'autorange': False, 'range': [-10, 10]},
                     margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
                     plot_bgcolor='#F3F6FA',
                 )
@@ -220,85 +222,85 @@ app.layout = html.Div(id='container', children=[
 
 # Callbacks for color picker
 @app.callback(Output('frequency_input', 'color'),
-              [Input('color_picker', 'value')])
+              [Input('color-picker', 'value')])
 def color_frequency_input(color):
     return color['hex']
 
 
 @app.callback(Output('amplitude_input', 'color'),
-              [Input('color_picker', 'value')])
+              [Input('color-picker', 'value')])
 def color_amplitude_input(color):
     return color['hex']
 
 
 @app.callback(Output('offset_input', 'color'),
-              [Input('color_picker', 'value')])
+              [Input('color-picker', 'value')])
 def color_offset_input(color):
     return color['hex']
 
 
 @app.callback(Output('frequency_display', 'color'),
-              [Input('color_picker', 'value')])
+              [Input('color-picker', 'value')])
 def color_frequency_display(color):
     return color['hex']
 
 
 @app.callback(Output('amplitude_display', 'color'),
-              [Input('color_picker', 'value')])
+              [Input('color-picker', 'value')])
 def color_amplitude_display(color):
     return color['hex']
 
 
 @app.callback(Output('offset_display', 'color'),
-              [Input('color_picker', 'value')])
+              [Input('color-picker', 'value')])
 def color_offset_display(color):
     return color['hex']
 
 
 @app.callback(Output('graph_info', 'style'),
-              [Input('color_picker', 'value')])
-def color_tabs_background(color):
+              [Input('color-picker', 'value')])
+def color_info(color):
     return {'textAlign': 'center', 'border': "2px solid " + color['hex']}
 
 
 @app.callback(Output('tabs', 'style'),
-              [Input('color_picker', 'value')])
+              [Input('color-picker', 'value')])
 def color_tabs_background(color):
     return {'backgroundColor': color['hex']}
 
 
-@app.callback(Output('power_title', 'style'),
-              [Input('color_picker', 'value')])
+@app.callback(Output('power-title', 'style'),
+              [Input('color-picker', 'value')])
 def color_power_title(color):
     return {'color': color['hex']}
 
 
-@app.callback(Output('function_title', 'style'),
-              [Input('color_picker', 'value')])
+@app.callback(Output('function-title', 'style'),
+              [Input('color-picker', 'value')])
 def color_function_title(color):
     return {'color': color['hex']}
 
 
-@app.callback(Output('graph_title', 'style'),
-              [Input('color_picker', 'value')])
+@app.callback(Output('graph-title', 'style'),
+              [Input('color-picker', 'value')])
 def color_graph_title(color):
     return {'color': color['hex']}
 
 
-@app.callback(Output('fnct_power', 'color'),
-              [Input('color_picker', 'value')])
+@app.callback(Output('function-generator', 'color'),
+              [Input('color-picker', 'value')])
 def color_fnct_power(color):
     return color['hex']
 
 
-@app.callback(Output('osc_power', 'color'),
-              [Input('color_picker', 'value')])
+@app.callback(Output('oscilloscope', 'color'),
+              [Input('color-picker', 'value')])
 def color_osc_power(color):
     return color['hex']
 
 
 @app.callback(Output('header', 'style'),
-              [Input('color_picker', 'value')])
+              [Input('color-picker', 'value')])
 def color_banner(color):
     return {'backgroundColor': color['hex']}
 
@@ -307,90 +309,95 @@ def color_banner(color):
 @app.callback(Output('frequency_display', 'value'),
               [Input('frequency_input', 'value')],)
 def update_frequency_display(value):
-    FGEN_AFG3021.set_frequency(value)
+    fgen.set_frequency(value)
     return value
 
 
 @app.callback(Output('amplitude_display', 'value'),
               [Input('amplitude_input', 'value')],)
 def update_amplitude_display(value):
-    FGEN_AFG3021.set_amplitude(value)
+    fgen.set_amplitude(value)
     return value
 
 
 @app.callback(Output('offset_display', 'value'),
               [Input('offset_input', 'value')])
 def update_offset_display(value):
-    FGEN_AFG3021.set_offset(value)
+    fgen.set_offset(value)
     return value
 
 
 @app.callback(Output('offset_display', 'value'),
               [Input('function_type', 'value')])
-def update_offset_display(value):
-    FGEN_AFG3021.set_offset(value)
+def update_fgen_wave(value):
+    fgen.set_wave(value)
     return value
 
 
 # Callbacks graph and graph info
 @app.callback(Output('graph_info', 'children'),
-              [Input('oscope', 'figure'),
+              [Input('oscope-graph', 'figure'),
                Input('tabs', 'value')])
-def update_wave(_, value):
+def update_info(_, value):
     if '' + str(value) in runs:
         return (runs['' + str(value)][1])
-
     return "-"
 
 
-@app.callback(Output('oscope', 'figure'),
-            [Input('update-oscope', 'n_intervals'),
-             Input('tabs', 'value')])
-def update_output(n):
+@app.callback(Output('oscope-graph', 'figure'),
+              [Input('update-oscope', 'n_intervals'),
+               Input('tabs', 'value')])
+def update_output(_, value):
     global tab
-
+    time = np.linspace(-0.000045, 0.000045, 1e3)
     zero = dict(
-            data=[dict(x=time, y=[0] * len(time), marker={'color': '#2a3f5f'})],
-            layout=go.Layout(
-                xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
-                    family='Dosis',
-                    size=15,
-                )},
-                yaxis={'title': 'Voltage (V)', 'color': '#506784', 'titlefont': dict(
-                    family='Dosis',
-                    size=15,
-                )},
-                margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                plot_bgcolor='#F3F6FA',
-            )
+        data=[dict(x=time, y=[0] * len(time),
+              marker={'color': '#2a3f5f'})],
+        layout=go.Layout(
+            xaxis={'title': 's', 'color': '#506784',
+                   'titlefont': dict(
+                       family='Dosis',
+                       size=15,
+                   )},
+            yaxis={'title': 'Voltage (V)', 'color': '#506784',
+                   'titlefont': dict(
+                       family='Dosis',
+                       size=15,
+                   )},
+            margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+            plot_bgcolor='#F3F6FA',
         )
+    )
 
     if tab is not value:
-            if '' + str(value) in runs:
-                tab = value
-                return runs['' + str(value)][0]
+        if '' + str(value) in runs:
             tab = value
-            return zero
+            return runs['' + str(value)][0]
+        tab = value
+        return zero
 
     else:
         figure = {
-            'data': OSC_TDS350.get_data(),
+            'data': osc.get_data(),
             'layout': go.Layout(
-                            xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
-                                family='Dosis',
-                                size=15,
-                            )},
-                            yaxis={'title': 'Voltage (V)', 'color': '#506784', 'titlefont': dict(
-                                family='Dosis',
-                                size=15,
-                            ), 'autorange': False, 'range': [-10, 10]},
-                            margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                            plot_bgcolor='#F3F6FA',
-                    )
+                xaxis={'title': 's', 'color': '#506784',
+                       'titlefont': dict(
+                           family='Dosis',
+                           size=15,
+                       )},
+                yaxis={'title': 'Voltage (V)', 'color': '#506784',
+                       'titlefont': dict(
+                           family='Dosis',
+                           size=15,
+                       ), 'autorange': False, 'range': [-10, 10]},
+                margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+                plot_bgcolor='#F3F6FA',)
         }
 
-        runs['' + str(value)] = figure, str(FGEN_AFG3021.get_wave()) + " | " + str(FGEN_AFG3021.get_frequency()) +  \
-                     "Hz" + " | " + str(FGEN_AFG3021.get_amplitude()) + "mV" + " | " + str(FGEN_AFG3021.get_offset()) + "mV"
+        runs['' + str(value)] = figure, str(fgen.get_wave()) + " | " + \
+            str(fgen.get_frequency()) + "Hz" + " | " + \
+            str(fgen.get_amplitude()) + "mV" + " | " +  \
+            str(fgen.get_offset()) + "mV"
 
         # wait to update the runs variable
         sleep(0.10)
@@ -409,7 +416,8 @@ def new_tabs(n_clicks):
 
 
 external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
-                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/9853c2e2/dash-tektronix-350.css",
+                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/" +
+                "eccb1a1a/dash-tektronix-350.css",
                 "https://fonts.googleapis.com/css?family=Dosis"]
 
 for css in external_css:
@@ -417,7 +425,9 @@ for css in external_css:
 
 if 'DYNO' in os.environ:
     app.scripts.append_script({
-        'external_url': 'https://cdn.rawgit.com/chriddyp/ca0d8f02a1659981a0ea7f013a378bbd/raw/e79f3f789517deec58f41251f7dbb6bee72c44ab/plotly_ga.js'
+        'external_url': 'https://cdn.rawgit.com/chriddyp/' +
+                        'ca0d8f02a1659981a0ea7f013a378bbd/raw/' +
+                        'e79f3f789517deec58f41251f7dbb6bee72c44ab/plotly_ga.js'
     })
 
 if __name__ == '__main__':
