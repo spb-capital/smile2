@@ -7,5 +7,6 @@ dash-core-components==0.21.0rc1
 numpy==1.14.1
 scipy==1.0.1
 dash_daq-0.0.1.tar.gz
+dash_daq-0.0.1.zip
 pylint
 flake8
