@@ -881,7 +881,7 @@ def new_tabs(n_clicks):
                      'value': int(tabs[-1]['value']) + 1})
         return tabs
     return tabs
-    
+
 
 @app.callback(Output('dark-tabs', 'tabs'),
               [Input('new-tab', 'n_clicks')])
@@ -909,4 +909,4 @@ if 'DYNO' in os.environ:
     })
 
 if __name__ == '__main__':
-    app.run_server(port=8000, debug=True)
+    app.run_server(port=5500, debug=True)
