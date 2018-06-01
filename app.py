@@ -1,16 +1,17 @@
 import dash
 from dash.dependencies import Input, Output
-import dash_daq as daq
 import dash_html_components as html
-
 import dash_core_components as dcc
+import dash_daq as daq
+
 import plotly.graph_objs as go
 from time import sleep
 import os
 import numpy as np
 
-import osc_tds350 as osc
 import fgen_afg3021 as fgen
+import osc_tds350 as osc
+
 
 app = dash.Dash()
 
@@ -44,28 +45,22 @@ app.layout = html.Div(id='container', children=[
                 html.H3("POWER", id="power-title")
             ], className='Title'),
             html.Div([
-                html.Div(
-                    [
-                        daq.PowerButton(
-                            id='function-generator',
-                            on='true',
-                            label="Function Generator",
-                            labelPosition='bottom',
-                            color="#447EFF"),
-                    ],
-                    className='six columns',
-                    style={'margin-bottom': '15px'}),
-                html.Div(
-                    [
-                        daq.PowerButton(
-                            id='oscilloscope',
-                            on='true',
-                            label="Oscilloscope",
-                            labelPosition='bottom',
-                            color="#447EFF")
-                    ],
-                    className='six columns',
-                    style={'margin-bottom': '15px'}),
+                html.Div([
+                    daq.PowerButton(
+                        id='function-generator',
+                        on='true',
+                        label="Function Generator",
+                        labelPosition='bottom',
+                        color="#447EFF"),
+                ], className='six columns', style={'margin-bottom': '15px'}),
+                html.Div([
+                    daq.PowerButton(
+                        id='oscilloscope',
+                        on='true',
+                        label="Oscilloscope",
+                        labelPosition='bottom',
+                        color="#447EFF")
+                ], className='six columns', style={'margin-bottom': '15px'}),
             ], style={'margin': '15px 0'})
         ], className='row power-settings-tab'),
         html.Div([
@@ -75,7 +70,7 @@ app.layout = html.Div(id='container', children=[
             html.Div([
                 daq.Knob(
                     value=fgen.get_frequency(),
-                    id="frequency_input",
+                    id="frequency-input",
                     label="Frequency (Hz)",
                     labelPosition="bottom",
                     size=75,
@@ -87,7 +82,7 @@ app.layout = html.Div(id='container', children=[
                 ),
                 daq.Knob(
                     value=fgen.get_amplitude(),
-                    id="amplitude_input",
+                    id="amplitude-input",
                     label="Amplitude (mV)",
                     labelPosition="bottom",
                     size=75,
@@ -98,7 +93,7 @@ app.layout = html.Div(id='container', children=[
                 ),
                 daq.Knob(
                     value=fgen.get_offset(),
-                    id="offset_input",
+                    id="offset-input",
                     label="Offset (mV)",
                     labelPosition="bottom",
                     size=75,
@@ -109,7 +104,7 @@ app.layout = html.Div(id='container', children=[
                 )], style={'marginLeft': '20%', 'textAlign': 'center'}),
             html.Div([
                 daq.LEDDisplay(
-                    id='frequency_display',
+                    id='frequency-display',
                     size=10,
                     label="Frequency (Hz)",
                     labelPosition="bottom",
@@ -117,14 +112,14 @@ app.layout = html.Div(id='container', children=[
                     style={'marginBottom': '30px'},
                     className='four columns'),
                 daq.LEDDisplay(
-                    id='amplitude_display',
+                    id='frequency-display',
                     size=10,
                     label="Amplitude (mV)",
                     labelPosition="bottom",
                     color="#447EFF",
                     className='four columns'),
                 daq.LEDDisplay(
-                    id='offset_display',
+                    id='offset-display',
                     size=10,
                     label="Offset (mV)",
                     labelPosition="bottom",
@@ -221,37 +216,37 @@ app.layout = html.Div(id='container', children=[
 
 
 # Callbacks for color picker
-@app.callback(Output('frequency_input', 'color'),
+@app.callback(Output('frequency-input', 'color'),
               [Input('color-picker', 'value')])
 def color_frequency_input(color):
     return color['hex']
 
 
-@app.callback(Output('amplitude_input', 'color'),
+@app.callback(Output('amplitude-input', 'color'),
               [Input('color-picker', 'value')])
 def color_amplitude_input(color):
     return color['hex']
 
 
-@app.callback(Output('offset_input', 'color'),
+@app.callback(Output('offset-input', 'color'),
               [Input('color-picker', 'value')])
 def color_offset_input(color):
     return color['hex']
 
 
-@app.callback(Output('frequency_display', 'color'),
+@app.callback(Output('frequency-display', 'color'),
               [Input('color-picker', 'value')])
 def color_frequency_display(color):
     return color['hex']
 
 
-@app.callback(Output('amplitude_display', 'color'),
+@app.callback(Output('frequency-display', 'color'),
               [Input('color-picker', 'value')])
 def color_amplitude_display(color):
     return color['hex']
 
 
-@app.callback(Output('offset_display', 'color'),
+@app.callback(Output('offset-display', 'color'),
               [Input('color-picker', 'value')])
 def color_offset_display(color):
     return color['hex']
@@ -306,28 +301,28 @@ def color_banner(color):
 
 
 # Callbacks for knob inputs
-@app.callback(Output('frequency_display', 'value'),
-              [Input('frequency_input', 'value')],)
+@app.callback(Output('frequency-display', 'value'),
+              [Input('frequency-input', 'value')],)
 def update_frequency_display(value):
     fgen.set_frequency(value)
     return value
 
 
-@app.callback(Output('amplitude_display', 'value'),
-              [Input('amplitude_input', 'value')],)
+@app.callback(Output('frequency-display', 'value'),
+              [Input('amplitude-input', 'value')],)
 def update_amplitude_display(value):
     fgen.set_amplitude(value)
     return value
 
 
-@app.callback(Output('offset_display', 'value'),
-              [Input('offset_input', 'value')])
+@app.callback(Output('offset-display', 'value'),
+              [Input('offset-input', 'value')])
 def update_offset_display(value):
     fgen.set_offset(value)
     return value
 
 
-@app.callback(Output('offset_display', 'value'),
+@app.callback(Output('offset-display', 'value'),
               [Input('function_type', 'value')])
 def update_fgen_wave(value):
     fgen.set_wave(value)
