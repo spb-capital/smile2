@@ -65,9 +65,7 @@ def get_amplitude():
     return fgenerator.query("VOLTAGE:AMPLITUDE?")
 
 def set_frequency(frequency):
-    if isnumber(frequency):
-        write("FREQUENCY " + str(frequency))
-
+    write("FREQUENCY " + str(frequency))
 
 def set_wave(wave):
     if wave in ['SIN', 'SQUARE', 'RAMP', 'PULSE']:
