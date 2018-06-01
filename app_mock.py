@@ -35,8 +35,9 @@ root_layout = html.Div([
             id='toggleTheme',
             style={
                 'position': 'absolute',
-                'transform': 'translate(-50%, -50%)'
+                'transform': 'translate(-50%, 20%)'
             },
+            size=25
         ),
     ], id="toggleDiv",
              style={
@@ -872,7 +873,7 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
         return figure
 
 
-@app.callback(Output('dark-tabs', 'tabs'),
+@app.callback(Output('tabs', 'tabs'),
               [Input('new-tab', 'n_clicks')])
 def new_tabs(n_clicks):
     if n_clicks is not None:
@@ -880,9 +881,9 @@ def new_tabs(n_clicks):
                      'value': int(tabs[-1]['value']) + 1})
         return tabs
     return tabs
+    
 
-
-@app.callback(Output('tabs', 'tabs'),
+@app.callback(Output('dark-tabs', 'tabs'),
               [Input('new-tab', 'n_clicks')])
 def new_dtabs(n_clicks):
     if n_clicks is not None:
@@ -908,4 +909,4 @@ if 'DYNO' in os.environ:
     })
 
 if __name__ == '__main__':
-    app.run_server(port=7500, debug=True)
+    app.run_server(port=8000, debug=True)
