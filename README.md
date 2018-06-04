@@ -1,4 +1,4 @@
-Dash-Tektronix-350
+# Dash-Tektronix-350
 
 A mock app of the Tektronix TDS 350 Oscilloscope. View a demo and learn more about this application from our blog entry [here](https://www.dashdaq.io/tektronix-function-generator) and [here](https://www.dashdaq.io/oscilloscope-logging).
 
