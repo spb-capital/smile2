@@ -458,7 +458,7 @@ dark_layout = DarkThemeProvider([
                                family='Dosis',
                                size=15,
                            )},
-                    yaxis={'title': 'Voltage (V)', 'color': '#EBF0F8',
+                    yaxis={'title': 'Voltage (mV)', 'color': '#EBF0F8',
                            'titlefont': dict(
                                family='Dosis',
                                size=15,
@@ -650,7 +650,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                        family='Dosis',
                        size=15,
                    )},
-            yaxis={'title': 'Voltage (V)', 'color': '#506784',
+            yaxis={'title': 'Voltage (mV)', 'color': '#506784',
                    'titlefont': dict(
                        family='Dosis',
                        size=15,
@@ -668,7 +668,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                     family='Dosis',
                     size=15,
                 ), 'showticklabels': False, 'ticks': '', 'zeroline': False},
-                yaxis={'title': 'Voltage (V)', 'color': '#506784',
+                yaxis={'title': 'Voltage (mV)', 'color': '#506784',
                        'titlefont': dict(
                            family='Dosis',
                            size=15,
@@ -692,7 +692,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                            family='Dosis',
                            size=15,
                        )},
-                yaxis={'title': 'Voltage (V)', 'color': '#506784',
+                yaxis={'title': 'Voltage (mV)', 'color': '#506784',
                        'titlefont': dict(
                            family='Dosis',
                            size=15,
@@ -730,7 +730,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                            family='Dosis',
                            size=15,
                        )},
-                yaxis={'title': 'Voltage (V)', 'color': '#506784',
+                yaxis={'title': 'Voltage (mV)', 'color': '#506784',
                        'titlefont': dict(
                            family='Dosis',
                            size=15,
@@ -768,7 +768,7 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                        family='Dosis',
                        size=15,
                    )},
-            yaxis={'title': 'Voltage (V)', 'color': '#EBF0F8',
+            yaxis={'title': 'Voltage (mV)', 'color': '#EBF0F8',
                    'titlefont': dict(
                        family='Dosis',
                        size=15,
@@ -789,7 +789,7 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                            size=15,
                        ), 'showticklabels': False,
                        'ticks': '', 'zeroline': False},
-                yaxis={'title': 'Voltage (V)', 'color': 'rgba(0,0,0,0)',
+                yaxis={'title': 'Voltage (mV)', 'color': 'rgba(0,0,0,0)',
                        'titlefont': dict(
                            family='Dosis',
                            size=15,
@@ -814,7 +814,7 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                            family='Dosis',
                            size=15,
                        )},
-                yaxis={'title': 'Voltage (V)', 'color': '#EBF0F8',
+                yaxis={'title': 'Voltage (mV)', 'color': '#EBF0F8',
                        'titlefont': dict(
                            family='Dosis',
                            size=15,
@@ -853,7 +853,7 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
                            family='Dosis',
                            size=15,
                        )},
-                yaxis={'title': 'Voltage (V)', 'color': '#EBF0F8',
+                yaxis={'title': 'Voltage (mV)', 'color': '#EBF0F8',
                        'titlefont': dict(
                            family='Dosis',
                            size=15,
