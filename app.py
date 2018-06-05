@@ -193,7 +193,7 @@ app.layout = html.Div(id='container', children=[
                                family='Dosis',
                                size=15,
                            )},
-                    yaxis={'title': 'Voltage (V)', 'color': '#506784',
+                    yaxis={'title': 'Voltage (mV)', 'color': '#506784',
                            'titlefont': dict(
                                family='Dosis',
                                size=15,
@@ -354,7 +354,7 @@ def update_output(_, value):
                        family='Dosis',
                        size=15,
                    )},
-            yaxis={'title': 'Voltage (V)', 'color': '#506784',
+            yaxis={'title': 'Voltage (mV)', 'color': '#506784',
                    'titlefont': dict(
                        family='Dosis',
                        size=15,
@@ -380,7 +380,7 @@ def update_output(_, value):
                            family='Dosis',
                            size=15,
                        )},
-                yaxis={'title': 'Voltage (V)', 'color': '#506784',
+                yaxis={'title': 'Voltage (mV)', 'color': '#506784',
                        'titlefont': dict(
                            family='Dosis',
                            size=15,
