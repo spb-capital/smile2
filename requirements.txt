@@ -6,5 +6,5 @@ dash-html-components==0.10.1
 dash-core-components==0.21.0rc1
 numpy==1.14.1
 scipy==1.0.1
-dash_daq-0.0.2.tar.gz
+dash-daq==0.1.4
 flake8
