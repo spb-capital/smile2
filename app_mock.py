@@ -11,16 +11,16 @@ from scipy import signal
 from time import sleep
 import os
 
-
-app = dash.Dash()
+app = dash.Dash(__name__)
 
 app.config['suppress_callback_exceptions'] = True
 
 server = app.server
 
-tabs = [
-    {'label': 'Run #{}'.format(i), 'value': i} for i in range(1, 2)
-]
+tabs = [dcc.Tab(
+    label='Run #1',
+    value=1
+)]
 
 tab = 1
 
@@ -39,10 +39,10 @@ root_layout = html.Div([
             size=25
         ),
     ], id="toggleDiv",
-             style={
-                 'width': 'fit-content',
-                 'margin': '0 auto'
-             }),
+        style={
+            'width': 'fit-content',
+            'margin': '0 auto'
+        }),
 
     html.Div(id='page-content'),
 ])
@@ -58,7 +58,7 @@ light_layout = html.Div(id='container', children=[
                     'text-align': 'center'
                 }),
         html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/" +
-                 "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png",
+                     "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png",
                  style={
                      'position': 'relative',
                      'float': 'right',
@@ -66,12 +66,12 @@ light_layout = html.Div(id='container', children=[
                      'height': '75px'
                  })
     ], className='banner',
-             id='header',
-             style={
-                 'height': '75px',
-                 'margin': '0px -10px 10px',
-                 'backgroundColor': '#447EFF'
-             }),
+        id='header',
+        style={
+            'height': '75px',
+            'margin': '0px -10px 10px',
+            'backgroundColor': '#447EFF'
+        }),
 
     html.Div([
         html.Div([
@@ -182,8 +182,8 @@ light_layout = html.Div(id='container', children=[
                        'width': '80%',
                        'alignItems': 'center',
                        'justifyContent': 'space-between'}
-                )
-            ], className='row power-settings-tab'),
+            )
+        ], className='row power-settings-tab'),
         html.Hr(),
         daq.ColorPicker(
             id="color-picker",
@@ -197,7 +197,7 @@ light_layout = html.Div(id='container', children=[
     html.Div([
         html.Div([html.H3("GRAPH", id="graph-title")], className='Title'),
         dcc.Tabs(
-            tabs=tabs,
+            children=tabs,
             value=1,
             id='tabs',
             style={'backgroundColor': '#447EFF', 'height': '80%'},
@@ -258,7 +258,7 @@ light_layout = html.Div(id='container', children=[
 dark_layout = DarkThemeProvider([
     html.Link(
         href="https://cdn.rawgit.com/samisahn/" +
-        "dash-app-stylesheets/dc60135a/dash-tektronix-350-dark.css",
+             "dash-app-stylesheets/dc60135a/dash-tektronix-350-dark.css",
         rel="stylesheet"
     ),
     # Function Generator Panel - Left
@@ -271,7 +271,7 @@ dark_layout = DarkThemeProvider([
                     'text-align': 'center'
                 }),
         html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/" +
-                 "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png",
+                     "excel/dash-daq/dash-daq-logo-by-plotly-stripe+copy.png",
                  style={
                      'position': 'relative',
                      'float': 'right',
@@ -279,12 +279,12 @@ dark_layout = DarkThemeProvider([
                      'height': '75px'
                  })
     ], className='banner',
-             id='dark-header',
-             style={
-                 'height': '75px',
-                 'margin': '0px -10px 10px',
-                 'backgroundColor': '#1d1d1d'
-             }),
+        id='dark-header',
+        style={
+            'height': '75px',
+            'margin': '0px -10px 10px',
+            'backgroundColor': '#1d1d1d'
+        }),
 
     html.Div([
         html.Div([
@@ -395,8 +395,8 @@ dark_layout = DarkThemeProvider([
                        'width': '80%',
                        'alignItems': 'center',
                        'justifyContent': 'space-between'}
-                )
-            ], className='row power-settings-tab'),
+            )
+        ], className='row power-settings-tab'),
         html.Hr(),
         daq.ColorPicker(
             id="color-picker",
@@ -411,7 +411,7 @@ dark_layout = DarkThemeProvider([
     html.Div([
         html.Div([html.H3("GRAPH", id="graph-title")], className='Title'),
         dcc.Tabs(
-            tabs=tabs,
+            children=tabs,
             value=1,
             id='dark-tabs',
             style={
@@ -477,7 +477,6 @@ dark_layout = DarkThemeProvider([
         )
     ], className='seven columns right-panel')
 ])
-
 
 app.layout = root_layout
 
@@ -593,13 +592,13 @@ def color_banner(color):
 
 # Callbacks for knob inputs
 @app.callback(Output('frequency-display', 'value'),
-              [Input('frequency-input', 'value')],)
+              [Input('frequency-input', 'value')], )
 def update_frequency_display(value):
     return value
 
 
 @app.callback(Output('amplitude-display', 'value'),
-              [Input('amplitude-input', 'value')],)
+              [Input('amplitude-input', 'value')], )
 def update_amplitude_display(value):
     return value
 
@@ -713,13 +712,13 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
         elif wave == 'SQUARE':
             y = [float(offset) +
                  float(amplitude) *
-                 (signal.square(2.0 * np.pi * float(frequency)/10 * t))
+                 (signal.square(2.0 * np.pi * float(frequency) / 10 * t))
                  for t in time]
 
         elif wave == 'RAMP':
             y = float(amplitude) * \
-                (np.abs(signal.sawtooth(2*np.pi * float(frequency)/10 * time)))
-            y = float(offset) + 2*y - float(amplitude)
+                (np.abs(signal.sawtooth(2 * np.pi * float(frequency) / 10 * time)))
+            y = float(offset) + 2 * y - float(amplitude)
 
         figure = dict(
             data=[dict(x=time, y=y, marker={'color': '#2a3f5f'})],
@@ -739,8 +738,8 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
             )
         )
 
-        runs['' + str(value)] = figure, str(wave) + " | " + str(frequency) +\
-            "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
+        runs['' + str(value)] = figure, str(wave) + " | " + str(frequency) + \
+                                "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
 
         # wait to update the runs variable
         sleep(0.10)
@@ -836,13 +835,13 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
         elif wave == 'SQUARE':
             y = [float(offset) +
                  float(amplitude) *
-                 (signal.square(2.0 * np.pi * float(frequency)/10 * t))
+                 (signal.square(2.0 * np.pi * float(frequency) / 10 * t))
                  for t in time]
 
         elif wave == 'RAMP':
             y = float(amplitude) * \
-                (np.abs(signal.sawtooth(2*np.pi * float(frequency)/10 * time)))
-            y = float(offset) + 2*y - float(amplitude)
+                (np.abs(signal.sawtooth(2 * np.pi * float(frequency) / 10 * time)))
+            y = float(offset) + 2 * y - float(amplitude)
 
         figure = dict(
             data=[dict(x=time, y=y, marker={'color': '#f2f5fa'})],
@@ -863,8 +862,8 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
             )
         )
 
-        runs['' + str(value)] = figure, str(wave) + " | " + str(frequency) +  \
-            "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
+        runs['' + str(value)] = figure, str(wave) + " | " + str(frequency) + \
+                                "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
 
         # wait to update the runs variable
         sleep(0.10)
@@ -872,22 +871,30 @@ def update_doutput(value, frequency, wave, amplitude, offset, osc_on, fnct_on):
         return figure
 
 
-@app.callback(Output('tabs', 'tabs'),
+@app.callback(Output('tabs', 'children'),
               [Input('new-tab', 'n_clicks')])
 def new_tabs(n_clicks):
     if n_clicks is not None:
-        tabs.append({'label': 'Run #' + str(tabs[-1]['value'] + 1),
-                     'value': int(tabs[-1]['value']) + 1})
+        l = len(tabs)
+        new_tab = dcc.Tab(
+            label='Run #{}'.format(str(l + 1)),
+            value=l+1,
+        )
+        tabs.append(new_tab)
         return tabs
     return tabs
 
 
-@app.callback(Output('dark-tabs', 'tabs'),
+@app.callback(Output('dark-tabs', 'children'),
               [Input('new-tab', 'n_clicks')])
 def new_dtabs(n_clicks):
     if n_clicks is not None:
-        tabs.append({'label': 'Run #' + str(tabs[-1]['value'] + 1),
-                     'value': int(tabs[-1]['value']) + 1})
+        l=len(tabs)
+        new_dtab = dcc.Tab(
+            label='Run #{}'.format(str(l+1)),
+            value=l+1,
+        )
+        tabs.append(new_dtab)
         return tabs
     return tabs
 
@@ -900,7 +907,7 @@ external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
 for css in external_css:
     app.css.append_css({"external_url": css})
 
-if 'DYNO' in os.environ:
+if 'DASH_PATH_ROUTING' in os.environ:
     app.scripts.append_script({
         'external_url': 'https://cdn.rawgit.com/chriddyp/' +
                         'ca0d8f02a1659981a0ea7f013a378bbd/raw/' +
