@@ -17,6 +17,10 @@ app.config['suppress_callback_exceptions'] = True
 
 server = app.server
 
+font_color = {'dark': '#ffffff', 'light': "#222"}
+background_color = {'dark': '#2a3f5f', 'light': '#ffffff'}
+title_color = {'dark': '#ffffff', 'light': '#447EFF'}
+
 tabs = [dcc.Tab(
     label='Run #1',
     value=1
@@ -26,7 +30,10 @@ tab = 1
 
 runs = {}
 
-root_layout = html.Div([
+root_layout = html.Div(
+    id ='root-content',
+    className='container',
+    children=[
     dcc.Location(id='url', refresh=False),
 
     html.Div([
@@ -256,11 +263,6 @@ light_layout = html.Div(id='container', children=[
 ])
 
 dark_layout = DarkThemeProvider([
-    html.Link(
-        href="https://cdn.rawgit.com/samisahn/" +
-             "dash-app-stylesheets/dc60135a/dash-tektronix-350-dark.css",
-        rel="stylesheet"
-    ),
     # Function Generator Panel - Left
     html.Div([
         html.H2("Dash DAQ: Function Generator & Oscilloscope Control Panel",
@@ -289,7 +291,7 @@ dark_layout = DarkThemeProvider([
     html.Div([
         html.Div([
             html.Div([
-                html.H3("POWER", id="power-title")
+                html.H3("POWER", id="power-title", style={'color': title_color['dark']})
             ], className='Title'),
             html.Div([
                 html.Div(
@@ -318,7 +320,7 @@ dark_layout = DarkThemeProvider([
         ], className='row power-settings-tab'),
         html.Div([
             html.Div(
-                [html.H3("FUNCTION", id="function-title")],
+                [html.H3("FUNCTION", id="function-title", style={'color': title_color['dark']})],
                 className='Title'),
             html.Div([
                 daq.Knob(
@@ -475,7 +477,8 @@ dark_layout = DarkThemeProvider([
                                                'hoverClosestCartesian',
                                                'hoverCompareCartesian']}
         )
-    ], className='seven columns right-panel')
+    ],
+        className='seven columns right-panel')
 ])
 
 app.layout = root_layout
@@ -490,13 +493,17 @@ def display_page(pathname):
         return False
 
 
-@app.callback(Output('page-content', 'children'),
-              [Input('toggleTheme', 'value')])
+@app.callback(
+    [
+        Output('page-content', 'children'),
+        Output('root-content', 'style')
+    ],
+    [Input('toggleTheme', 'value')])
 def page_layout(value):
     if value:
-        return dark_layout
+        return dark_layout, {'backgroundColor': background_color['dark']}
     else:
-        return light_layout
+        return light_layout, {'backgroundColor': background_color['light']}
 
 
 # Callbacks for color picker
@@ -878,7 +885,7 @@ def new_tabs(n_clicks):
         l = len(tabs)
         new_tab = dcc.Tab(
             label='Run #{}'.format(str(l + 1)),
-            value=l+1,
+            value=l + 1,
         )
         tabs.append(new_tab)
         return tabs
@@ -889,30 +896,15 @@ def new_tabs(n_clicks):
               [Input('new-tab', 'n_clicks')])
 def new_dtabs(n_clicks):
     if n_clicks is not None:
-        l=len(tabs)
+        l = len(tabs)
         new_dtab = dcc.Tab(
-            label='Run #{}'.format(str(l+1)),
-            value=l+1,
+            label='Run #{}'.format(str(l + 1)),
+            value=l + 1,
         )
         tabs.append(new_dtab)
         return tabs
     return tabs
 
 
-external_css = ["https://codepen.io/chriddyp/pen/bWLwgP.css",
-                "https://cdn.rawgit.com/samisahn/dash-app-stylesheets/" +
-                "eccb1a1a/dash-tektronix-350.css",
-                "https://fonts.googleapis.com/css?family=Dosis"]
-
-for css in external_css:
-    app.css.append_css({"external_url": css})
-
-if 'DASH_PATH_ROUTING' in os.environ:
-    app.scripts.append_script({
-        'external_url': 'https://cdn.rawgit.com/chriddyp/' +
-                        'ca0d8f02a1659981a0ea7f013a378bbd/raw/' +
-                        'e79f3f789517deec58f41251f7dbb6bee72c44ab/plotly_ga.js'
-    })
-
 if __name__ == '__main__':
-    app.run_server(port=5500, debug=True)
+    app.run_server(debug=True)
