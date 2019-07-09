@@ -1,68 +1,88 @@
 @import url('https://fonts.googleapis.com/css?family=Dosis');
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .container {
-    width: 100%;
-    max-width: none;
+  width: 100%;
+  max-width: none;
 }
 
 body {
-    font-size: 1.5em;
-    line-height: 1.6;
-    font-weight: 400;
-    font-family: Dosis, Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    color: #222;    /*dark: color: #ffffff, background: #2a3f5f;*/
+  font-size: 1.5em;
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: Dosis, Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #222; /*dark: color: #ffffff, background: #2a3f5f;*/
 }
 
 input[type="radio"] {
-    display: inline;
-    margin: 0px 5px;
+  display: inline;
+  margin: 0px 5px;
 }
 
 .right-panel {
-    float: right;
+  float: right;
 }
 
 .right-panel .Title {
-    font-size: 38px;
-    margin-top: 15px;
-    border-bottom: 1px solid rgb(216, 216, 216);
+  font-size: 38px;
+  margin-top: 15px;
+  border-bottom: 1px solid rgb(216, 216, 216);
 }
 
 .right-panel .Title h3 {
-    font-size: 1.75rem;
-    color: #447EFF;  /*dark : color: inherit*/
-    border-bottom: rgb(216, 216, 216);
-    margin-top: 3px;
-    margin-left: 10px;
-    margin-bottom: 3px;
+  font-size: 1.75rem;
+  color: #447EFF; /*dark : color: inherit*/
+  border-bottom: rgb(216, 216, 216);
+  margin-top: 3px;
+  margin-left: 10px;
+  margin-bottom: 3px;
 }
 
 .power-settings-tab .Title {
-    margin-top: 15px;
-    border-bottom: 1px solid rgb(216, 216, 216);
+  margin-top: 15px;
+  border-bottom: 1px solid rgb(216, 216, 216);
 }
 
 .power-settings-tab .Title h3 {
-    font-size: 1.75rem;
-    color: #447EFF;  /*dark : color: inherit*/
-    border-bottom: rgb(216, 216, 216);
-    margin-top: 3px;
-    margin-left: 10px;
-    margin-bottom: 3px;
+  font-size: 1.75rem;
+  color: #447EFF; /*dark : color: inherit*/
+  border-bottom: rgb(216, 216, 216);
+  margin-top: 3px;
+  margin-left: 10px;
+  margin-bottom: 3px;
 }
 
 .seven.right-panel > div:nth-child(2) > div > div {
-    background-color: #ffffff !important;
-    text-transform: uppercase;
-    font-weight: 800;
+  background-color: #ffffff !important;
+  text-transform: uppercase;
+  font-weight: 800;
 }
 
 ._dash-undo-redo {
-    display: none
+  display: none
+}
+
+.graph-param {
+  text-align: center;
+  font-size: 16px;
+  padding: 0 5px;
+  line-height: 20px;
+}
+
+.oscillator-tabs {
+  height: 80%;
+}
+
+.banner {
+  height: 75px;
+  margin: 0 -10px 10px;
+}
+
+#dark-header {
+  background-color:  #1d1d1d !important;
 }
