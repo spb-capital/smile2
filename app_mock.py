@@ -532,6 +532,7 @@ def color_update(color):
         {'backgroundColor': color['hex']} for _ in range(2))
 
 
+# Multi-output callbacks for dark color picker
 @app.callback([Output('frequency-input-dark', 'color'),
                Output('amplitude-input-dark', 'color'),
                Output('offset-input-dark', 'color'),
@@ -576,6 +577,23 @@ def update_amplitude_display(value):
 def update_offset_display(value):
     return value
 
+
+@app.callback(Output('frequency-display-dark', 'value'),
+              [Input('frequency-input-dark', 'value')], )
+def update_frequency_display(value):
+    return value
+
+
+@app.callback(Output('amplitude-display-dark', 'value'),
+              [Input('amplitude-input-dark', 'value')], )
+def update_amplitude_display(value):
+    return value
+
+
+@app.callback(Output('offset-display-dark', 'value'),
+              [Input('offset-input-dark', 'value')])
+def update_offset_display(value):
+    return value
 
 # Callbacks graph and graph info
 @app.callback(Output('graph-info', 'children'),
