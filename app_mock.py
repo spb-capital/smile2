@@ -482,22 +482,25 @@ app.layout = html.Div(
                 'margin': '0 auto'
             }),
 
-        html.Div(id='page-content', children=light_layout),
-        dcc.Store(id='runs', data={}),
-        dcc.Store(id='tab', data='1')
+        html.Div(id='page-content', children=[
+            html.Div(id='light-layout', children=light_layout),
+            html.Div(id='dark-layout', style={'display': 'none'}, children=dark_layout),
+        ]),
+        dcc.Store(id='runs', data={}),  # sharing running information
+        dcc.Store(id='tab-number', data=1)  # sharing tab number
     ]
 )
 
 
 # Callback to update theme
 @app.callback(
-    Output('page-content', 'children'),
+    [Output('light-layout', 'style'), Output('dark-layout', 'style')],
     [Input('toggleTheme', 'value')])
 def page_layout(value):
-    if value:
-        return dark_layout
+    if not value:
+        return {'display': 'block'}, {'display': 'none'}
     else:
-        return light_layout
+        return {'display': 'none'}, {'display': 'block'}
 
 
 # Multi-output callbacks for color picker
@@ -856,34 +859,34 @@ def update_offset_display(value):
 #
 
 # Callback to update tab number
-@app.callback(Output('tabs', 'children'),
-              [Input('new-tab', 'n_clicks')],
-              [State('tabs', 'children')])
-def new_tabs(n_clicks, cur_tab):
-    if n_clicks:
-        l = len(cur_tab)
-        new_tab = dcc.Tab(
-            label='Run #{}'.format(str(l + 1)),
-            value=str(l + 1),
-        )
-        cur_tab.append(new_tab)
-        return cur_tab
-    return cur_tab
+
+# Update total tab number
+@app.callback(
+    Output('tab-number', 'data'),
+    [Input('new-tab', 'n_clicks'), Input("new-tab-dark", 'n_clicks')],
+    [State('tab-number', 'data')]
+)
+def update_total_tab_number(n_clicks, n_clicks_dark, cur_total_tab):
+    # callback context
+    ctx = dash.callback_context
+    if ctx.triggered:
+        prop_type = ctx.triggered[0]["prop_id"].split(".")[1]
+        prop_value = ctx.triggered[0]['value']
+        if prop_type == 'n_clicks' and prop_value:
+            return cur_total_tab + 1
+    return cur_total_tab
 
 
-@app.callback(Output('dark-tabs', 'children'),
-              [Input('new-tab-dark', 'n_clicks')],
-              [State('dark-tabs', 'children')])
-def new_dtabs(n_clicks, cur_dtabs):
-    if n_clicks:
-        l = len(cur_dtabs)
-        new_dtab = dcc.Tab(
-            label='Run #{}'.format(str(l + 1)),
-            value=str(l + 1),
-        )
-        cur_dtabs.append(new_dtab)
-        return cur_dtabs
-    return cur_dtabs
+@app.callback(
+    [Output('tabs', 'children'), Output('dark-tabs', 'children')],
+    [Input('tab-number', 'data')]
+)
+def update_tabs(total_tab_number):
+    light_tabs = dark_tabs = list(dcc.Tab(
+        label='Run #{}'.format(i),
+        value='{}'.format(i)
+    ) for i in range(1, total_tab_number + 1))
+    return light_tabs, dark_tabs
 
 
 if __name__ == '__main__':
