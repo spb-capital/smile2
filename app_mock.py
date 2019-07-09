@@ -397,8 +397,7 @@ dark_layout = DarkThemeProvider(
                         )],
                         value='1',
                         style={
-                            'backgroundColor': '#EBF0F8',
-                            'color': '#2a3f5f',
+                            'backgroundColor': '#EBF0F8'
                         },
                         className='oscillator-tabs'
                     ),
@@ -428,6 +427,7 @@ dark_layout = DarkThemeProvider(
                     html.Hr(),
                     dcc.Graph(
                         id='dark-oscope-graph',
+
                         figure=dict(
                             data=[dict(x=np.linspace(-0.000045, 0.000045, 1000),
                                        y=[0] * len(np.linspace(-0.000045, 0.000045, 1000)),
@@ -855,35 +855,35 @@ def update_offset_display(value):
 #
 #
 
+# Callback to update tab number
+@app.callback(Output('tabs', 'children'),
+              [Input('new-tab', 'n_clicks')],
+              [State('tabs', 'children')])
+def new_tabs(n_clicks, cur_tab):
+    if n_clicks:
+        l = len(cur_tab)
+        new_tab = dcc.Tab(
+            label='Run #{}'.format(str(l + 1)),
+            value=str(l + 1),
+        )
+        cur_tab.append(new_tab)
+        return cur_tab
+    return cur_tab
 
-# @app.callback(Output('tabs', 'children'),
-#               [Input('new-tab', 'n_clicks')],
-#               [State('tabs', 'children')])
-# def new_tabs(n_clicks, cur_tab):
-#     if n_clicks:
-#         l = len(cur_tab)
-#         new_tab = dcc.Tab(
-#             label='Run #{}'.format(str(l + 1)),
-#             value=str(l + 1),
-#         )
-#         cur_tab.append(new_tab)
-#         return cur_tab
-#     return cur_tab
-#
-#
-# @app.callback(Output('dark-tabs', 'children'),
-#               [Input('new-tab', 'n_clicks')],
-#               [State('dark-tabs', 'children')])
-# def new_dtabs(n_clicks, cur_dtabs):
-#     if n_clicks:
-#         l = len(cur_dtabs)
-#         new_dtab = dcc.Tab(
-#             label='Run #{}'.format(str(l + 1)),
-#             value=str(l + 1),
-#         )
-#         cur_dtabs.append(new_dtab)
-#         return cur_dtabs
-#     return cur_dtabs
+
+@app.callback(Output('dark-tabs', 'children'),
+              [Input('new-tab-dark', 'n_clicks')],
+              [State('dark-tabs', 'children')])
+def new_dtabs(n_clicks, cur_dtabs):
+    if n_clicks:
+        l = len(cur_dtabs)
+        new_dtab = dcc.Tab(
+            label='Run #{}'.format(str(l + 1)),
+            value=str(l + 1),
+        )
+        cur_dtabs.append(new_dtab)
+        return cur_dtabs
+    return cur_dtabs
 
 
 if __name__ == '__main__':

@@ -60,6 +60,7 @@ input[type="radio"] {
   background-color: #ffffff !important;
   text-transform: uppercase;
   font-weight: 800;
+  color:initial;
 }
 
 ._dash-undo-redo {
