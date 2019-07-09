@@ -460,43 +460,32 @@ dark_layout = DarkThemeProvider(
                     className='seven columns right-panel')
             ])])
 
-root_layout = html.Div(
+app.layout = html.Div(
     id='root-content',
     className='container',
     children=[
         dcc.Location(id='url', refresh=False),
 
-        html.Div(
-            id="toggleDiv",
-            children=[
-                daq.ToggleSwitch(
-                    id='toggleTheme',
-                    size=30,
-                    value=False,
-                    label=['light', 'dark']
-                ),
-            ],
+        html.Div([
+            daq.ToggleSwitch(
+                id='toggleTheme',
+                style={
+                    'position': 'absolute',
+                    'transform': 'translate(-50%, 20%)',
+                    'z-index': '9999'
+                },
+                size=25
+            ),
+        ], id="toggleDiv",
             style={
-                'margin': 'auto',
-                'width': '80px',
-                'height': '20px'
+                'width': 'fit-content',
+                'margin': '0 auto'
             }),
 
-        html.Div(id='page-content', children=[light_layout]),
+        html.Div(id='page-content', children=light_layout),
         dcc.Store(id='runs', data={}),
         dcc.Store(id='tab', data='1')
     ])
-
-app.layout = root_layout
-
-
-@app.callback(Output('toggleTheme', 'value'),
-              [Input('url', 'pathname')])
-def display_page(pathname):
-    if pathname == '/dark':
-        return True
-    else:
-        return False
 
 
 @app.callback(
@@ -594,6 +583,7 @@ def update_amplitude_display(value):
               [Input('offset-input-dark', 'value')])
 def update_offset_display(value):
     return value
+
 
 # Callbacks graph and graph info
 @app.callback(Output('graph-info', 'children'),
@@ -733,7 +723,7 @@ def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on, ta
         runs[('' + value)] = figure, str(wave) + " | " + str(frequency) + \
                              "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
 
-    # wait to update the runs variable
+    # wait to update the runs variable  #todo: change to dcc.store
     sleep(0.2)
 
     return figure, tab, runs

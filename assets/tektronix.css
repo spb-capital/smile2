@@ -16,7 +16,6 @@ body {
   line-height: 1.6;
   font-weight: 400;
   font-family: Dosis, Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #222; /*dark: color: #ffffff, background: #2a3f5f;*/
 }
 
 input[type="radio"] {
@@ -84,5 +83,5 @@ input[type="radio"] {
 }
 
 #dark-header {
-  background-color:  #1d1d1d !important;
+  background-color: #1d1d1d !important;
 }
