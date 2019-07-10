@@ -425,40 +425,42 @@ dark_layout = DarkThemeProvider(
                                         'float': 'right'}),
                     ], className='row oscope-info', style={'margin': '15px'}),
                     html.Hr(),
-                    dcc.Graph(
-                        id='dark-oscope-graph',
-
-                        figure=dict(
-                            data=[dict(x=np.linspace(-0.000045, 0.000045, 1000),
-                                       y=[0] * len(np.linspace(-0.000045, 0.000045, 1000)),
-                                       marker={'color': '#f2f5fa'})],
-                            layout=go.Layout(
-                                xaxis={'title': 's', 'color': '#EBF0F8',
-                                       'titlefont': dict(
-                                           family='Dosis',
-                                           size=15,
-                                       )},
-                                yaxis={'title': 'Voltage (mV)', 'color': '#EBF0F8',
-                                       'titlefont': dict(
-                                           family='Dosis',
-                                           size=15,
-                                       ), 'autorange': False, 'range': [-10, 10]},
-                                margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-                                plot_bgcolor='rgba(0,0,0,0)',
-                                paper_bgcolor='rgba(0,0,0,0)'
-                            )
-                        ),
-                        config={'displayModeBar': True,
-                                'modeBarButtonsToRemove': ['pan2d',
-                                                           'zoomIn2d',
-                                                           'zoomOut2d',
-                                                           'autoScale2d',
-                                                           'hoverClosestCartesian',
-                                                           'hoverCompareCartesian']}
-                    )
+                    # dcc.Graph(
+                    #     id='dark-oscope-graph',
+                    #
+                    #     figure=dict(
+                    #         data=[dict(x=np.linspace(-0.000045, 0.000045, 1000),
+                    #                    y=[0] * len(np.linspace(-0.000045, 0.000045, 1000)),
+                    #                    marker={'color': '#f2f5fa'})],
+                    #         layout=go.Layout(
+                    #             xaxis={'title': 's', 'color': '#EBF0F8',
+                    #                    'titlefont': dict(
+                    #                        family='Dosis',
+                    #                        size=15,
+                    #                    )},
+                    #             yaxis={'title': 'Voltage (mV)', 'color': '#EBF0F8',
+                    #                    'titlefont': dict(
+                    #                        family='Dosis',
+                    #                        size=15,
+                    #                    ), 'autorange': False, 'range': [-10, 10]},
+                    #             margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+                    #             plot_bgcolor='rgba(0,0,0,0)',
+                    #             paper_bgcolor='rgba(0,0,0,0)'
+                    #         )
+                    #     ),
+                    #     config={'displayModeBar': True,
+                    #             'modeBarButtonsToRemove': ['pan2d',
+                    #                                        'zoomIn2d',
+                    #                                        'zoomOut2d',
+                    #                                        'autoScale2d',
+                    #                                        'hoverClosestCartesian',
+                    #                                        'hoverCompareCartesian']}
+                    # )
                 ],
                     className='seven columns right-panel')
             ])])
+
+tab = '1'
 
 app.layout = html.Div(
     id='root-content',
@@ -586,149 +588,178 @@ def update_offset_display(value):
     return value
 
 
-# # Callbacks updating graph info
-# @app.callback(Output('graph-info', 'children'),
-#               [Input('oscope-graph', 'figure'),
-#                Input('tabs', 'value'),
-#                Input('runs', 'data')])
-# def update_info(_, value, runs):
-#     if '' + value in runs:
-#         return runs[('' + value)][1]
-#     return "-"
+#
+# Callbacks graph and graph info
+@app.callback(
+    Output('graph-info', 'children'),
+    [
+     Input('tabs', 'value'),
+     Input('runs', 'data')
+    ]
+)
+def update_info(value, cur_runs):
+    if value in cur_runs:
+        return cur_runs[value][1]
+    return "-"
+
+
+@app.callback([Output('oscope-graph', 'figure'), Output('runs', 'data')],
+              [
+                  Input('tabs', 'value'),
+                  Input('frequency-input', 'value'),
+                  Input('function-type', 'value'),
+                  Input('amplitude-input', 'value'),
+                  Input('offset-input', 'value'),
+                  Input('oscilloscope', 'on'),
+                  Input('function-generator', 'on')
+              ],
+              [State('runs', 'data')]
+              )
+def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on, cur_runs):
+    global tab
+    time = np.linspace(-0.000045, 0.000045, 1000)
+    zero = dict(
+        data=[dict(x=time, y=[0] * len(time),
+                   marker={'color': '#2a3f5f'})],
+        layout=go.Layout(
+            xaxis={'title': 's', 'color': '#506784',
+                   'titlefont': dict(
+                       family='Dosis',
+                       size=15,
+                   )},
+            yaxis={'title': 'Voltage (mV)', 'color': '#506784',
+                   'titlefont': dict(
+                       family='Dosis',
+                       size=15,
+                   ), 'autorange': False, 'range': [-10, 10]},
+            margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+            plot_bgcolor='#F3F6FA',
+        )
+    )
+
+    if not osc_on:
+        return dict(
+            data=[],
+            layout=go.Layout(
+                xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
+                    family='Dosis',
+                    size=15,
+                ), 'showticklabels': False, 'ticks': '', 'zeroline': False},
+                yaxis={'title': 'Voltage (mV)', 'color': '#506784',
+                       'titlefont': dict(
+                           family='Dosis',
+                           size=15,
+                       ), 'showticklabels': False, 'zeroline': False},
+                margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+                plot_bgcolor='#506784',
+            )
+        )
+
+    if not fnct_on:
+        return zero, cur_runs
+
+    if tab is not value:
+        if value in cur_runs:
+            tab = value
+            figure = cur_runs[value][0]
+            figure['data'][0]['marker']['color'] = '#2a3f5f'
+            figure['layout'] = go.Layout(
+                xaxis={'title': 's', 'color': '#506784',
+                       'titlefont': dict(
+                           family='Dosis',
+                           size=15,
+                       )},
+                yaxis={'title': 'Voltage (mV)', 'color': '#506784',
+                       'titlefont': dict(
+                           family='Dosis',
+                           size=15,
+                       ), 'autorange': False, 'range': [-10, 10]},
+                margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+                plot_bgcolor='#F3F6FA',
+            )
+            return figure, cur_runs
+        tab = value
+        return zero, cur_runs
+
+    else:
+        if wave == 'SIN':
+            y = [float(offset) +
+                 (float(amplitude) *
+                  np.sin(np.radians(2.0 * np.pi * float(frequency) * t)))
+                 for t in time]
+
+        elif wave == 'SQUARE':
+            y = [float(offset) +
+                 float(amplitude) *
+                 (signal.square(2.0 * np.pi * float(frequency) / 10 * t))
+                 for t in time]
+
+        elif wave == 'RAMP':
+            y = float(amplitude) * \
+                (np.abs(signal.sawtooth(2 * np.pi * float(frequency) / 10 * time)))
+            y = float(offset) + 2 * y - float(amplitude)
+
+        figure = dict(
+            data=[dict(x=time, y=y, marker={'color': '#2a3f5f'})],
+            layout=go.Layout(
+                xaxis={'title': 's', 'color': '#506784',
+                       'titlefont': dict(
+                           family='Dosis',
+                           size=15,
+                       )},
+                yaxis={'title': 'Voltage (mV)', 'color': '#506784',
+                       'titlefont': dict(
+                           family='Dosis',
+                           size=15,
+                       ), 'autorange': False, 'range': [-10, 10]},
+                margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
+                plot_bgcolor='#F3F6FA',
+            )
+        )
+
+        cur_runs[value] = figure, str(wave) + " | " + str(frequency) + \
+                          "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
+
+        # wait to update the runs variable
+        sleep(0.10)
+
+        return figure, cur_runs
+
+
+# todo: update runs, graph-info, figure contains {key: value} when inputs are toggled.
+
+# toggles -> graph-info, figure in runs,  update runs
+# run-update + current tab number - > light-figure/dark-figure.
 #
 #
-# @app.callback(Output('dark-graph-info', 'children'),
-#               [Input('dark-oscope-graph', 'figure'),
-#                Input('dark-tabs', 'value'),
-#                Input('runs', 'data')])
-# def update_dinfo(_, value, runs):
-#     if '' + value in runs:
-#         return runs['' + str(value)][1]
-#     return "-"
+# ## Updating graph info
+# @app.callback(
+#     Output('graph-info', 'children'),
+#     [Input('tabs', 'value'), Input('runs', 'data')]
+# )
+# def update_graph(tab_selected, run_data):
+#     if str(tab_selected) in run_data:
+#         tab_data = run_data[str(tab_selected)]
+#         if len(tab_data) > 0:
+#             info = str(tab_data[1]) + " | " + str(tab_data[0]) + "Hz" + " | " + str(tab_data[2]) + "mV" + " | " + str(
+#                 tab_data[3]) + "mV"
+#             return info
 #
+#     return " - "
+
+
+# @app.callback(
+#     Output('dark-graph-info', 'children'),
+#     [Input('dark-tabs', 'value'), Input('runs', 'data')]
+# )
+# def update_graph(dtab_selected, run_data):
+#     if str(dtab_selected) in run_data:
+#         tab_data = run_data[str(dtab_selected)]
+#         info = str(tab_data[1]) + " | " + str(tab_data[0]) + "Hz" + " | " + str(tab_data[2]) + "mV" + " | " + str(
+#             tab_data[3]) + "mV"
+#         return info
 #
-# @app.callback([Output('oscope-graph', 'figure'),
-#                Output('tab', 'data'),
-#                Output('runs', 'data')],
-#               [Input('tabs', 'value'),
-#                Input('frequency-input', 'value'),
-#                Input('function-type', 'value'),
-#                Input('amplitude-input', 'value'),
-#                Input('offset-input', 'value'),
-#                Input('oscilloscope', 'on'),
-#                Input('function-generator', 'on')],
-#               [State('tab', 'data'), State('runs', 'data')]
-#               )
-# def update_output(value, frequency, wave, amplitude, offset, osc_on, fnct_on, tab, runs):
-#     print(value, tab, runs.keys())
-#
-#     time = np.linspace(-0.000045, 0.000045, 1e3)
-#     zero = dict(
-#         data=[dict(x=time, y=[0] * len(time),
-#                    marker={'color': '#2a3f5f'})],
-#         layout=go.Layout(
-#             xaxis={'title': 's', 'color': '#506784',
-#                    'titlefont': dict(
-#                        family='Dosis',
-#                        size=15,
-#                    )},
-#             yaxis={'title': 'Voltage (mV)', 'color': '#506784',
-#                    'titlefont': dict(
-#                        family='Dosis',
-#                        size=15,
-#                    ), 'autorange': False, 'range': [-10, 10]},
-#             margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-#             plot_bgcolor='#F3F6FA',
-#         )
-#     )
-#
-#     if not osc_on:
-#         return dict(
-#             data=[],
-#             layout=go.Layout(
-#                 xaxis={'title': 's', 'color': '#506784', 'titlefont': dict(
-#                     family='Dosis',
-#                     size=15,
-#                 ), 'showticklabels': False, 'ticks': '', 'zeroline': False},
-#                 yaxis={'title': 'Voltage (mV)', 'color': '#506784',
-#                        'titlefont': dict(
-#                            family='Dosis',
-#                            size=15,
-#                        ), 'showticklabels': False, 'zeroline': False},
-#                 margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-#                 plot_bgcolor='#506784',
-#             )
-#         ), tab, runs
-#
-#     if not fnct_on:
-#         return zero, tab, runs
-#
-#     if tab is not value:
-#         if '' + value in runs:
-#             tab = value
-#             figure = runs[('' + value)][0]
-#             figure['data'][0]['marker']['color'] = '#2a3f5f'
-#             figure['layout'] = go.Layout(
-#                 xaxis={'title': 's', 'color': '#506784',
-#                        'titlefont': dict(
-#                            family='Dosis',
-#                            size=15,
-#                        )},
-#                 yaxis={'title': 'Voltage (mV)', 'color': '#506784',
-#                        'titlefont': dict(
-#                            family='Dosis',
-#                            size=15,
-#                        ), 'autorange': False, 'range': [-10, 10]},
-#                 margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-#                 plot_bgcolor='#F3F6FA',
-#             )
-#             return figure, tab, runs
-#         tab = value
-#         return zero, tab, runs
-#
-#     else:
-#         if wave == 'SIN':
-#             y = [float(offset) +
-#                  (float(amplitude) *
-#                   np.sin(np.radians(2.0 * np.pi * float(frequency) * t)))
-#                  for t in time]
-#
-#         elif wave == 'SQUARE':
-#             y = [float(offset) +
-#                  float(amplitude) *
-#                  (signal.square(2.0 * np.pi * float(frequency) / 10 * t))
-#                  for t in time]
-#
-#         elif wave == 'RAMP':
-#             y = float(amplitude) * \
-#                 (np.abs(signal.sawtooth(2 * np.pi * float(frequency) / 10 * time)))
-#             y = float(offset) + 2 * y - float(amplitude)
-#
-#         figure = dict(
-#             data=[dict(x=time, y=y, marker={'color': '#2a3f5f'})],
-#             layout=go.Layout(
-#                 xaxis={'title': 's', 'color': '#506784',
-#                        'titlefont': dict(
-#                            family='Dosis',
-#                            size=15,
-#                        )},
-#                 yaxis={'title': 'Voltage (mV)', 'color': '#506784',
-#                        'titlefont': dict(
-#                            family='Dosis',
-#                            size=15,
-#                        ), 'autorange': False, 'range': [-10, 10]},
-#                 margin={'l': 40, 'b': 40, 't': 0, 'r': 50},
-#                 plot_bgcolor='#F3F6FA',
-#             )
-#         )
-#
-#         runs[('' + value)] = figure, str(wave) + " | " + str(frequency) + \
-#                              "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
-#
-#     # wait to update the runs variable
-#     sleep(0.2)
-#
-#     return figure, tab, runs
+#     return " - "
 
 
 #
@@ -858,9 +889,8 @@ def update_offset_display(value):
 #
 #
 
-# Callback to update tab number
 
-# Update total tab number
+# Callback to update total tab number
 @app.callback(
     Output('tab-number', 'data'),
     [Input('new-tab', 'n_clicks'), Input("new-tab-dark", 'n_clicks')],
@@ -877,6 +907,7 @@ def update_total_tab_number(n_clicks, n_clicks_dark, cur_total_tab):
     return cur_total_tab
 
 
+# Update tabs
 @app.callback(
     [Output('tabs', 'children'), Output('dark-tabs', 'children')],
     [Input('tab-number', 'data')]
