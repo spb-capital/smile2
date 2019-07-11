@@ -7,9 +7,7 @@ import dash_core_components as dcc
 from dash.exceptions import PreventUpdate
 
 import numpy as np
-import plotly.graph_objs as go
 from scipy import signal
-from time import sleep
 
 app = dash.Dash(__name__)
 app.config['suppress_callback_exceptions'] = True
@@ -17,7 +15,6 @@ server = app.server
 
 font_color = {'dark': '#ffffff', 'light': "#222"}
 background_color = {'dark': '#2a3f5f', 'light': '#ffffff'}
-title_color = {'dark': '#ffffff', 'light': '#447EFF'}
 axis_color = {'dark': '#EBF0F8', 'light': '#506784'}
 marker_color = {'dark': '#f2f5fa', 'light': '#2a3f5f'}
 
@@ -43,7 +40,7 @@ def header():
     return html.Div(
         id='header',
         className='banner',
-        style={'backgroundColor': '#447EEF'},
+        style={'backgroundColor': '#6682C0'},
         children=[
             html.H2(
                 "Dash DAQ: Function Generator & Oscilloscope Control Panel",
@@ -68,7 +65,7 @@ def header():
     )
 
 
-def Knobs(cur_input, cur_tab):
+def knobs(cur_input, cur_tab):
     return html.Div([
         daq.Knob(
             value=cur_input[cur_tab]['frequency_input'],
@@ -159,8 +156,8 @@ def radioitem(cur_input, cur_tab):
 
 
 def power_setting_div(cur_inputs, cur_tab):
-    if cur_inputs is None:
-        cur_inputs=init_input
+    if cur_inputs is None or len(cur_inputs) == 0:
+        cur_inputs = init_input
     return html.Div(
         className='row power-settings-tab',
         children=[
@@ -200,7 +197,7 @@ def power_setting_div(cur_inputs, cur_tab):
 
 
 def function_setting_div(cur_input, cur_tab):
-    if cur_input is None:
+    if cur_input is None or len(cur_input) == 0:
         cur_input = init_input
     return html.Div(
         className='row power-settings-tab',
@@ -210,7 +207,7 @@ def function_setting_div(cur_input, cur_tab):
                 style={'color': theme['primary']},
                 children=html.H3("Function", id='function-title')),
             # Knobs
-            Knobs(cur_input, cur_tab),
+            knobs(cur_input, cur_tab),
             # LED Displays
             led_displays(cur_input, cur_tab),
             # # RadioItems
@@ -267,7 +264,7 @@ app.layout = html.Div(
                             daq.ColorPicker(
                                 id="color-picker",
                                 label="Color Picker",
-                                value=dict(hex="#447EFF"),
+                                value=dict(hex='#6682C0'),
                                 size=164,
                                 style={'marginTop': '20px'}
                             )
@@ -287,7 +284,12 @@ app.layout = html.Div(
                                     value='1'
                                 )],
                                 value='1',
-                                className='oscillator-tabs'
+                                className='oscillator-tabs',
+                                colors={
+                                    'border': '#d6d6d6',
+                                    'primary': '#6682C0',
+                                    'background': '#f2f2f2'
+                                }
                             ),
 
                             html.Div(
@@ -309,7 +311,7 @@ app.layout = html.Div(
                                         type='submit',
                                         style={'height': '20px', 'width': '20px',
                                                'padding': '2px', 'lineHeight': '10px',
-                                               'float': 'right'})
+                                               'float': 'right', 'color': 'inherit'})
 
                                 ]
                             ),
@@ -322,11 +324,37 @@ app.layout = html.Div(
         ),
         dcc.Store(id='tab-number', data=1),
         dcc.Store(id='runs', data={}),
-
-        dcc.Store(id='control-inputs', data=init_input  # {tabs_number: {value1:x, value2:x}
+        dcc.Store(id='control-inputs', data={}  # {tabs_number: {value1:x, value2:x}
                   )
     ]
 )
+
+
+@app.callback(
+    [
+        Output('oscilloscope', 'on'),
+        Output('function-generator', 'on'),
+        Output('frequency-input', 'value'),
+        Output('amplitude-input', 'value'),
+        Output('offset-input', 'value'),
+        Output('function-type', 'value'),
+    ],
+    [
+        Input('tabs', 'value')
+    ],
+    [
+        State('control-inputs', 'data'),
+        State('oscilloscope', 'on'),
+        State('function-generator', 'on')
+    ]
+)
+def update_controls(tab_index: str, cur_inputs, osci_on, func_gen):
+    if tab_index not in cur_inputs:
+        return osci_on, func_gen, 1000000, 1, 0, 'SIN'
+
+    td = cur_inputs[tab_index]
+    return td['oscilloscope'], td['function_generator'], td['frequency_input'], td['amplitude_input'], \
+           td['offset_input'], td['function_type']
 
 
 # update control values
@@ -339,41 +367,87 @@ app.layout = html.Div(
         Input('amplitude-input', 'value'),
         Input('offset-input', 'value'),
         Input('function-type', 'value'),
-
-        Input('tabs', 'value')
     ],
     [State('tabs', 'value'), State('control-inputs', 'data')]
 )
-def update_control_values(osc_on, fnct_on, frequency, amplitude, offset, wave, click_tab, sel_tab, cur_inputs):
-    # Update inputs value
-    if click_tab not in cur_inputs:
-        cur_inputs.update({click_tab: init_input['1']})
-    ctx = dash.callback_context
-    prop_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    if prop_id != 'tabs':
-        cur_inputs.update(
-            {sel_tab: dict(oscilloscope=osc_on, function_generator=fnct_on, frequency_input=frequency,
-                                    amplitude_input=amplitude, offset_input=offset, function_type=wave)})
-
-    print('current updated inputs:', cur_inputs)
+def update_control_values(osc_on, fnct_on, frequency, amplitude, offset, wave, sel_tab, cur_inputs):
+    cur_inputs.update(
+        {sel_tab: dict(oscilloscope=osc_on, function_generator=fnct_on, frequency_input=frequency,
+                       amplitude_input=amplitude, offset_input=offset, function_type=wave)})
     return cur_inputs
 
 
-#
-# # Update figure
-# @app.callback(
-#     Output(figure)
-#     Input'control-input',
-#     Input("tab", 'value')
-# )
 # new tab created not saved to store unless control inputs changes
+@app.callback(
+    [Output('oscope-graph', 'figure'), Output('graph-info', 'children')],
+    [Input('control-inputs', 'data'), Input('toggleTheme', 'value')],
+    [State('tabs', 'value')]
+)
+def generate_graph(cur_inputs, theme_value, tab_index: str):
+    theme_select = 'dark' if theme_value else 'light'
+    axis = axis_color[theme_select]
+    marker = marker_color[theme_select]
+    time = np.linspace(-0.000045, 0.000045, 1000)
+
+    base_figure = dict(
+        data=[dict(x=time, y=[0] * len(time), marker={'color': marker})],
+        layout=dict(xaxis=dict(title='s',
+                               color=axis,
+                               titlefont=dict(family='Dosis', size=13)),
+                    yaxis=dict(title='Voltage (mV)',
+                               color=axis,
+                               range=[-10, 10],
+                               titlefont=dict(family='Dosis', size=13)),
+                    margin={'l': 40, 'b': 40, 't': 20, 'r': 50},
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)')
+    )
+    if tab_index not in cur_inputs:
+        return base_figure, '-'
+
+    tab_data = cur_inputs[tab_index]
+
+    if not tab_data['oscilloscope']:
+        base_figure.update(data=[])
+        base_figure['layout']['xaxis'].update(showticklabels=False, showline=False, zeroline=False)
+        base_figure['layout']['yaxis'].update(showticklabels=False, showline=False, zeroline=False)
+        return base_figure, '-'
+
+    if not tab_data['function_generator']:
+        return base_figure, '-'
+
+    if tab_data['function_type'] == 'SIN':
+        y = [float(tab_data['offset_input']) +
+             (float(tab_data['amplitude_input']) *
+              np.sin(np.radians(2.0 * np.pi * float(tab_data['frequency_input']) * t)))
+             for t in time]
+
+    elif tab_data['function_type'] == 'SQUARE':
+        y = [float(tab_data['offset_input']) +
+             float(tab_data['amplitude_input']) *
+             (signal.square(2.0 * np.pi * float(tab_data['frequency_input']) / 10 * t))
+             for t in time]
+
+    elif tab_data['function_type'] == 'RAMP':
+        y = float(tab_data['amplitude_input']) * \
+            (np.abs(signal.sawtooth(2 * np.pi * float(tab_data['frequency_input']) / 10 * time)))
+        y = float(tab_data['offset_input']) + 2 * y - float(tab_data['amplitude_input'])
+    else:
+        return base_figure, '-'
+
+    base_figure['data'][0].update(y=y)
+
+    info = (f'{tab_data["function_type"]}|{tab_data["frequency_input"]}Hz|'
+            f'{tab_data["amplitude_input"]} mV | {tab_data["offset_input"]} mV')
+
+    return base_figure, info
 
 
 # Callback to update theme layout
 @app.callback(
     Output("dark-theme-components", 'children'),
     [Input("toggleTheme", 'value'), Input("color-picker", "value")],
-    [State("control-inputs", 'data'), State('tabs', 'value')]  # Keep inputs value while changing themes
+    [State("control-inputs", 'data'), State('tabs', 'value')]
 )
 def turn_dark(turn_dark, color_pick, cur_inputs, cur_tab_value):
     theme.update(dark=turn_dark)
@@ -397,14 +471,25 @@ def turn_dark(turn_dark, color_pick, cur_inputs, cur_tab_value):
         Output('function-title', 'style'),
         Output('graph-title', 'style'),
         Output('graph-info', 'style'),
-        Output('tabs', 'style'),
-        Output('header', 'style'),
+        Output('tabs', 'color'),
+        Output('header', 'style')
     ],
     [Input('color-picker', 'value')])
 def color_update(color):
     return list({'color': color['hex']} for _ in range(3)) + [
-        {'border': ("1px solid " + color['hex']), 'color': color['hex']}] + list(
-        {'backgroundColor': color['hex']} for _ in range(2))
+        {'border': ("1px solid " + color['hex']), 'color': 'inherit'}] + [{'border': color['hex']}] + [
+               {'backgroundColor': color['hex']}]
+
+
+@app.callback(
+    Output('new-tab', 'style'),
+    [Input('toggleTheme', 'value')],
+    [State('new-tab', 'style')]
+)
+def update_click_btn_color(turn_dark, cur_style):
+    if turn_dark:
+        cur_style.update(backgroundColor='#EBF0F8')
+    raise PreventUpdate
 
 
 # Callback updating backgrounds
@@ -438,128 +523,18 @@ def update_offset_display(value):
     return value
 
 
+# Callback for adding tabs
 @app.callback(
-    Output('tab-number', 'data'),
+    [Output('tabs', 'children'), Output('tabs', 'value')],
     [Input("new-tab", 'n_clicks')],
-    [State("tab-number", 'data')]
+    [State("control-inputs", 'data')]
 )
-def update_total_tab_number(n_clicks, cur_total_tab):
-    if n_clicks:
-        return cur_total_tab + 1
-    return cur_total_tab
-
-
-# Update tabs
-@app.callback(
-    Output('tabs', 'children'),
-    [Input('tab-number', 'data')]
-)
-def update_tabs(total_tab_number):
+def update_total_tab_number(n_clicks, cur_inputs):
     return list(dcc.Tab(
         label='Run #{}'.format(i),
         value='{}'.format(i)
-    ) for i in range(1, total_tab_number + 1))
-
-
-# # Make figure and save to running stats
-# @app.callback(
-#     [Output('oscope-graph', 'figure'), Output('runs', 'data')],
-#     [
-#         Input('tabs', 'value'),
-#
-#         Input('frequency-input', 'value'),
-#         Input('function-type', 'value'),
-#         Input('amplitude-input', 'value'),
-#         Input('offset-input', 'value'),
-#         Input('oscilloscope', 'on'),
-#         Input('function-generator', 'on')
-#     ],
-#     [State("toggleTheme", "value"), State("runs", 'data'), State('oscope-graph', 'figure')]
-# )
-# def update_figure(sel_tab, frequency, wave, amplitude, offset, osc_on, fnct_on, theme, cur_runs, cur_fig):
-#     global axis_color, marker_color
-#     global tab
-#     theme_select = 'dark' if theme else 'light'
-#     axis = axis_color[theme_select]
-#     marker = marker_color[theme_select]
-#     time = np.linspace(-0.000045, 0.000045, 1000)
-#     base_figure = dict(
-#         data=[dict(x=time, y=[0] * len(time), marker={'color': marker})],
-#         layout=dict(xaxis=dict(title='s',
-#                                color=axis,
-#                                titlefont=dict(family='Dosis', size=13)),
-#                     yaxis=dict(title='Voltage (mV)',
-#                                color=axis,
-#                                range=[-10, 10],
-#                                titlefont=dict(family='Dosis', size=13)),
-#                     margin={'l': 40, 'b': 40, 't': 20, 'r': 50},
-#                     plot_bgcolor='rgba(0,0,0,0)',
-#                     paper_bgcolor='rgba(0,0,0,0)')
-#     )
-#     if not osc_on:
-#         base_figure.update(data=[])
-#         base_figure['layout']['xaxis'].update(showticklabels=False, showline=False, zeroline=False)
-#         base_figure['layout']['yaxis'].update(showticklabels=False, showline=False, zeroline=False)
-#         return base_figure, cur_runs
-#
-#     if not fnct_on:
-#         return base_figure, cur_runs
-#
-#     # todo: share figures bw themes when theme is toggled, problem: if toggletheme, input is fired again, so figure is updated
-#     # need to re-wire controller inputs in darktheme editor
-#
-#     if tab is not sel_tab:
-#         if sel_tab in cur_runs:
-#             tab = sel_tab
-#             figure = cur_runs[sel_tab][0]
-#             figure['data'][0]['marker']['color'] = marker
-#             figure['layout']['xaxis']['color'] = figure['layout']['yaxis']['color'] = axis
-#             return figure, cur_runs
-#         tab = sel_tab
-#         return base_figure, cur_runs
-#
-#     else:
-#         if wave == 'SIN':
-#             y = [float(offset) +
-#                  (float(amplitude) *
-#                   np.sin(np.radians(2.0 * np.pi * float(frequency) * t)))
-#                  for t in time]
-#
-#         elif wave == 'SQUARE':
-#             y = [float(offset) +
-#                  float(amplitude) *
-#                  (signal.square(2.0 * np.pi * float(frequency) / 10 * t))
-#                  for t in time]
-#
-#         elif wave == 'RAMP':
-#             y = float(amplitude) * \
-#                 (np.abs(signal.sawtooth(2 * np.pi * float(frequency) / 10 * time)))
-#             y = float(offset) + 2 * y - float(amplitude)
-#
-#         base_figure['data'][0].update(y=y)
-#
-#         cur_runs[sel_tab] = base_figure, str(wave) + " | " + str(frequency) + \
-#                           "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
-#
-#         # wait to update the runs variable
-#         sleep(0.10)
-#
-#         return base_figure, cur_runs
-
-#
-# # Update graph-info
-# @app.callback(
-#     Output('graph-info', 'children'),
-#     [
-#         Input('tabs', 'value'),
-#         Input('runs', 'data')
-#     ]
-# )
-# def update_info(value, cur_runs):
-#     if value in cur_runs:
-#         return cur_runs[value][1]
-#     return "-"
+    ) for i in range(1, len(cur_inputs) + 2)), str(len(cur_inputs) + 1)
 
 
 if __name__ == '__main__':
-    app.run_server(port=8051, debug=True, dev_tools_hot_reload=False)
+    app.run_server(debug=True)
