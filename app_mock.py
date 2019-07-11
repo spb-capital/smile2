@@ -322,8 +322,6 @@ app.layout = html.Div(
                 ]
             )
         ),
-        dcc.Store(id='tab-number', data=1),
-        dcc.Store(id='runs', data={}),
         dcc.Store(id='control-inputs', data={}  # {tabs_number: {value1:x, value2:x}
                   )
     ]
