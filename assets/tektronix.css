@@ -60,7 +60,6 @@ input[type="radio"] {
 }
 
 .seven.right-panel > div:nth-child(2) > div > div {
-  background-color: #ffffff !important;
   text-transform: uppercase;
   font-weight: 800;
   color: initial;
@@ -86,6 +85,6 @@ input[type="radio"] {
   margin: 0 -10px 10px;
 }
 
-#dark-header {
-  background-color: #1d1d1d !important;
+#color-picker > div {
+  background-color: inherit !important;
 }

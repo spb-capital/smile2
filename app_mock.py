@@ -266,7 +266,7 @@ app.layout = html.Div(
                                 label="Color Picker",
                                 value=dict(hex='#6682C0'),
                                 size=164,
-                                style={'marginTop': '20px'}
+                                style={'marginTop': '20px', 'backgroundColor': 'inherit'}
                             )
                         ]
                     ),
