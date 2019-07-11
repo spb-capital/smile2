@@ -4,6 +4,7 @@ import dash_daq as daq
 from dash_daq import DarkThemeProvider
 import dash_html_components as html
 import dash_core_components as dcc
+from dash.exceptions import PreventUpdate
 
 app = dash.Dash(__name__)
 app.config['suppress_callback_exceptions'] = True
@@ -145,7 +146,7 @@ def power_setting_div():
         children=[
             html.Div(
                 className='Title',
-                children=html.H3("Power", id='power-title')),
+                children=html.H3("Power", id='power-title', style={'color': theme['primary']})),
             html.Div(
                 # power-controllers
                 [
@@ -184,6 +185,7 @@ def function_setting_div():
         children=[
             html.Div(
                 className='Title',
+                style={'color': theme['primary']},
                 children=html.H3("Function", id='function-title')),
             # Knobs
             Knobs(),
@@ -252,7 +254,8 @@ app.layout = html.Div(
                     html.Div(
                         className='seven columns right-panel',
                         children=[
-                            html.Div([html.H3("GRAPH", id="graph-title")], className='Title'),
+                            html.Div([html.H3("Graph", id="graph-title")], style={'color': theme['primary']},
+                                     className='Title'),
 
                             dcc.Tabs(
                                 id='tabs',
@@ -293,7 +296,9 @@ app.layout = html.Div(
                     )
                 ]
             )
-        )
+        ),
+        dcc.Store(id='tab-number', data=1),
+        dcc.Store(id='runs', data={})
     ]
 )
 
@@ -303,8 +308,8 @@ app.layout = html.Div(
     Output("dark-theme-components", 'children'),
     [Input("toggleTheme", 'value'), Input("color-picker", "value")]
 )
-def turn_dark(value, color_pick):
-    if value:
+def turn_dark(turn_dark, color_pick):
+    if turn_dark:
         theme.update(dark=True)
     else:
         theme.update(dark=False)
@@ -319,6 +324,65 @@ def turn_dark(value, color_pick):
             function_setting_div()
         ]
     )
+
+
+# Update colors upon color-picker changes
+@app.callback(
+    [
+        Output('power-title', 'style'),
+        Output('function-title', 'style'),
+        Output('graph-title', 'style'),
+        Output('graph-info', 'style'),
+        Output('tabs', 'style'),
+        Output('header', 'style'),
+    ],
+    [Input('color-picker', 'value')])
+def color_update(color):
+    return list({'color': color['hex']} for _ in range(3)) + [
+        {'border': ("1px solid " + color['hex']), 'color': color['hex']}] + list(
+        {'backgroundColor': color['hex']} for _ in range(2))
+
+
+# Callbacks for knob inputs
+@app.callback(Output('frequency-display', 'value'),
+              [Input('frequency-input', 'value')], )
+def update_frequency_display(value):
+    return value
+
+
+@app.callback(Output('amplitude-display', 'value'),
+              [Input('amplitude-input', 'value')], )
+def update_amplitude_display(value):
+    return value
+
+
+@app.callback(Output('offset-display', 'value'),
+              [Input('offset-input', 'value')])
+def update_offset_display(value):
+    return value
+
+
+@app.callback(
+    Output('tab-number', 'data'),
+    [Input("new-tab", 'n_clicks')],
+    [State("tab-number", 'data')]
+)
+def update_total_tab_number(n_clicks, cur_total_tab):
+    if n_clicks:
+        return cur_total_tab + 1
+    return cur_total_tab
+
+
+# Update tabs
+@app.callback(
+    Output('tabs', 'children'),
+    [Input('tab-number', 'data')]
+)
+def update_tabs(total_tab_number):
+    return list(dcc.Tab(
+        label='Run #{}'.format(i),
+        value='{}'.format(i)
+    ) for i in range(1, total_tab_number + 1))
 
 
 if __name__ == '__main__':

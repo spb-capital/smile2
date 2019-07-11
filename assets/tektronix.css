@@ -23,8 +23,12 @@ input[type="radio"] {
   margin: 0px 5px;
 }
 
-.right-panel {
-  float: right;
+.left-panel, .right-panel {
+  padding: 0rem 2rem;
+}
+
+.oscope-info {
+  margin: 15px;
 }
 
 .right-panel .Title {
@@ -33,9 +37,9 @@ input[type="radio"] {
   border-bottom: 1px solid rgb(216, 216, 216);
 }
 
+
 .right-panel .Title h3 {
   font-size: 1.75rem;
-  color: #447EFF; /*dark : color: inherit*/
   border-bottom: rgb(216, 216, 216);
   margin-top: 3px;
   margin-left: 10px;
@@ -49,7 +53,6 @@ input[type="radio"] {
 
 .power-settings-tab .Title h3 {
   font-size: 1.75rem;
-  color: #447EFF; /*dark : color: inherit*/
   border-bottom: rgb(216, 216, 216);
   margin-top: 3px;
   margin-left: 10px;
@@ -60,7 +63,7 @@ input[type="radio"] {
   background-color: #ffffff !important;
   text-transform: uppercase;
   font-weight: 800;
-  color:initial;
+  color: initial;
 }
 
 ._dash-undo-redo {
