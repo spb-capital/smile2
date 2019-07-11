@@ -6,6 +6,8 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.exceptions import PreventUpdate
 
+import numpy as np
+
 app = dash.Dash(__name__)
 app.config['suppress_callback_exceptions'] = True
 server = app.server
@@ -13,6 +15,8 @@ server = app.server
 font_color = {'dark': '#ffffff', 'light': "#222"}
 background_color = {'dark': '#2a3f5f', 'light': '#ffffff'}
 title_color = {'dark': '#ffffff', 'light': '#447EFF'}
+axis_color = {'dark': '#EBF0F8', 'light': '#506784'}
+marker_color = {'dark': '#f2f5fa', 'light': '#2a3f5f'}
 
 theme = {
     'dark': False,
@@ -198,6 +202,7 @@ def function_setting_div():
 
 
 app.layout = html.Div(
+    id='main-page',
     className='container',
     children=[
         # toggle
@@ -343,6 +348,18 @@ def color_update(color):
         {'backgroundColor': color['hex']} for _ in range(2))
 
 
+# Callback updating backgrounds
+@app.callback(
+    Output('main-page', 'style'),
+    [Input("toggleTheme", 'value')]
+)
+def update_background(turn_dark):
+    if turn_dark:
+        return {'backgroundColor': background_color['dark'], 'color': font_color['dark']}
+    else:
+        return {'backgroundColor': background_color['light'], 'color': font_color['light']}
+
+
 # Callbacks for knob inputs
 @app.callback(Output('frequency-display', 'value'),
               [Input('frequency-input', 'value')], )
@@ -383,6 +400,52 @@ def update_tabs(total_tab_number):
         label='Run #{}'.format(i),
         value='{}'.format(i)
     ) for i in range(1, total_tab_number + 1))
+
+
+# Make figure and save to running stats
+@app.callback(
+    Output('oscope-graph', 'figure'),
+    [
+        Input('frequency-input', 'value'),
+        Input('function-type', 'value'),
+        Input('amplitude-input', 'value'),
+        Input('offset-input', 'value'),
+        Input('oscilloscope', 'on'),
+        Input('function-generator', 'on')
+    ],
+    [State("toggleTheme", "value")]
+)
+def update_figure(frequency, wave, amplitude, offset, osc_on, fnct_on, theme):
+    global axis_color, marker_color
+    theme_select = 'dark' if theme else 'light'
+    axis = axis_color[theme_select]
+    marker = marker_color[theme_select]
+    time = np.linspace(-0.000045, 0.000045, 1000)
+    zero_figure = dict(
+        data=[dict(x=time, y=[0] * len(time), marker={'color': marker})],
+        layout=dict(xaxis=dict(title='s',
+                               color=axis,
+                               titlefont=dict(family='Dosis', size=13)),
+                    yaxis= dict(title='Voltage (mV)',
+                                color=axis,
+                                range=[-10, 10],
+                                titlefont=dict(family='Dosis', size=13)),
+                    margin={'l': 40, 'b': 40, 't': 20, 'r': 50},
+                    plot_bgcolor = 'rgba(0,0,0,0)',
+                    paper_bgcolor = 'rgba(0,0,0,0)')
+    )
+    if not osc_on:
+        zero_figure.update(data=[])
+        zero_figure['layout']['xaxis'].update(showticklabels=False, showline=False, zeroline=False)
+        zero_figure['layout']['yaxis'].update(showticklabels=False, showline=False, zeroline=False)
+        return zero_figure
+
+    if not fnct_on:
+        return zero_figure
+
+
+
+    return zero_figure
 
 
 if __name__ == '__main__':
