@@ -7,6 +7,9 @@ import dash_core_components as dcc
 from dash.exceptions import PreventUpdate
 
 import numpy as np
+import plotly.graph_objs as go
+from scipy import signal
+from time import sleep
 
 app = dash.Dash(__name__)
 app.config['suppress_callback_exceptions'] = True
@@ -24,6 +27,8 @@ theme = {
     'secondary': '#D3D3D3',
     'detail': '#D3D3D3'
 }
+
+tab = '1'
 
 
 def header():
@@ -421,31 +426,48 @@ def update_figure(frequency, wave, amplitude, offset, osc_on, fnct_on, theme):
     axis = axis_color[theme_select]
     marker = marker_color[theme_select]
     time = np.linspace(-0.000045, 0.000045, 1000)
-    zero_figure = dict(
+    base_figure = dict(
         data=[dict(x=time, y=[0] * len(time), marker={'color': marker})],
         layout=dict(xaxis=dict(title='s',
                                color=axis,
                                titlefont=dict(family='Dosis', size=13)),
-                    yaxis= dict(title='Voltage (mV)',
-                                color=axis,
-                                range=[-10, 10],
-                                titlefont=dict(family='Dosis', size=13)),
+                    yaxis=dict(title='Voltage (mV)',
+                               color=axis,
+                               range=[-10, 10],
+                               titlefont=dict(family='Dosis', size=13)),
                     margin={'l': 40, 'b': 40, 't': 20, 'r': 50},
-                    plot_bgcolor = 'rgba(0,0,0,0)',
-                    paper_bgcolor = 'rgba(0,0,0,0)')
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)')
     )
     if not osc_on:
-        zero_figure.update(data=[])
-        zero_figure['layout']['xaxis'].update(showticklabels=False, showline=False, zeroline=False)
-        zero_figure['layout']['yaxis'].update(showticklabels=False, showline=False, zeroline=False)
-        return zero_figure
+        base_figure.update(data=[])
+        base_figure['layout']['xaxis'].update(showticklabels=False, showline=False, zeroline=False)
+        base_figure['layout']['yaxis'].update(showticklabels=False, showline=False, zeroline=False)
+        return base_figure
 
     if not fnct_on:
-        return zero_figure
+        return base_figure
 
+    else:
+        if wave == 'SIN':
+            y = [float(offset) +
+                 (float(amplitude) *
+                  np.sin(np.radians(2.0 * np.pi * float(frequency) * t)))
+                 for t in time]
 
+        elif wave == 'SQUARE':
+            y = [float(offset) +
+                 float(amplitude) *
+                 (signal.square(2.0 * np.pi * float(frequency) / 10 * t))
+                 for t in time]
 
-    return zero_figure
+        elif wave == 'RAMP':
+            y = float(amplitude) * \
+                (np.abs(signal.sawtooth(2 * np.pi * float(frequency) / 10 * time)))
+            y = float(offset) + 2 * y - float(amplitude)
+
+        base_figure['data'][0].update(y=y)
+        return base_figure
 
 
 if __name__ == '__main__':
