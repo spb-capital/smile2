@@ -409,8 +409,10 @@ def update_tabs(total_tab_number):
 
 # Make figure and save to running stats
 @app.callback(
-    Output('oscope-graph', 'figure'),
+    [Output('oscope-graph', 'figure'), Output('runs', 'data')],
     [
+        Input('tabs', 'value'),
+
         Input('frequency-input', 'value'),
         Input('function-type', 'value'),
         Input('amplitude-input', 'value'),
@@ -418,10 +420,11 @@ def update_tabs(total_tab_number):
         Input('oscilloscope', 'on'),
         Input('function-generator', 'on')
     ],
-    [State("toggleTheme", "value")]
+    [State("toggleTheme", "value"), State("runs", 'data'), State('oscope-graph', 'figure')]
 )
-def update_figure(frequency, wave, amplitude, offset, osc_on, fnct_on, theme):
+def update_figure(sel_tab, frequency, wave, amplitude, offset, osc_on, fnct_on, theme, cur_runs, cur_fig):
     global axis_color, marker_color
+    global tab
     theme_select = 'dark' if theme else 'light'
     axis = axis_color[theme_select]
     marker = marker_color[theme_select]
@@ -443,10 +446,23 @@ def update_figure(frequency, wave, amplitude, offset, osc_on, fnct_on, theme):
         base_figure.update(data=[])
         base_figure['layout']['xaxis'].update(showticklabels=False, showline=False, zeroline=False)
         base_figure['layout']['yaxis'].update(showticklabels=False, showline=False, zeroline=False)
-        return base_figure
+        return base_figure, cur_runs
 
     if not fnct_on:
-        return base_figure
+        return base_figure, cur_runs
+
+    # todo: share figures bw themes when theme is toggled, problem: if toggletheme, input changes, so figure is updated
+    # todo: Add a store for
+
+    if tab is not sel_tab:
+        if sel_tab in cur_runs:
+            tab = sel_tab
+            figure = cur_runs[sel_tab][0]
+            figure['data'][0]['marker']['color'] = marker
+            figure['layout']['xaxis']['color'] = figure['layout']['yaxis']['color'] = axis
+            return figure, cur_runs
+        tab = sel_tab
+        return base_figure, cur_runs
 
     else:
         if wave == 'SIN':
@@ -467,7 +483,28 @@ def update_figure(frequency, wave, amplitude, offset, osc_on, fnct_on, theme):
             y = float(offset) + 2 * y - float(amplitude)
 
         base_figure['data'][0].update(y=y)
-        return base_figure
+
+        cur_runs[sel_tab] = base_figure, str(wave) + " | " + str(frequency) + \
+                          "Hz" + " | " + str(amplitude) + "mV" + " | " + str(offset) + "mV"
+
+        # wait to update the runs variable
+        sleep(0.10)
+
+        return base_figure, cur_runs
+
+
+## Update graph-info
+@app.callback(
+    Output('graph-info', 'children'),
+    [
+        Input('tabs', 'value'),
+        Input('runs', 'data')
+    ]
+)
+def update_info(value, cur_runs):
+    if value in cur_runs:
+        return cur_runs[value][1]
+    return "-"
 
 
 if __name__ == '__main__':
