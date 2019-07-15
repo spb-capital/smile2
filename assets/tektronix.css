@@ -11,6 +11,10 @@
   max-width: none;
 }
 
+#main-page {
+  min-height: 100vh;
+}
+
 body {
   font-size: 1.5em;
   line-height: 1.6;
