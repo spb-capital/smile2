@@ -1,12 +1,6 @@
 gunicorn>=19.7.1
-plotly>=3.6.0
-dash==0.38.0
-dash-core-components==0.43.1
-dash-daq==0.1.4
-dash-html-components==0.13.5
-dash-renderer==0.19.0
-dash-table==3.5.0
+dash==0.43.0
 numpy==1.16.1
 scipy==1.2.1
-dash-daq==0.1.4
 flake8
+dash-daq>=0.1.4
