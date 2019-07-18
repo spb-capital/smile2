@@ -12,6 +12,7 @@ library(dashDaq)
 library(dashHtmlComponents)
 library(dashCoreComponents)
 library(magrittr)
+library(purrr)
 library(rlang)
 
 app <- Dash$new()
@@ -134,7 +135,7 @@ led_displays <- function(cur_input, cur_tab){
       label="Offset (mV)",
       labelPosition="bottom",
       color=theme[['primary']],
-      className='four columns'),
+      className='four columns')
     ), style=list(marginLeft = '20%', textAlign = 'center')))
 }
 
@@ -144,7 +145,7 @@ radioitem <- function(cur_input, cur_tab){
     options=list(
       list(label= 'Sine', value= 'SIN'),
       list(label= 'Square', value= 'SQUARE'),
-      list(label= 'Ramp', value= 'RAMP'),
+      list(label= 'Ramp', value= 'RAMP')
       ),
     value=cur_input[[cur_tab]][['function_type']],
     labelStyle=list(display= 'inline-block'),
@@ -191,7 +192,7 @@ return(htmlDiv(
               color=theme[['primary']]
             ),
           className='six columns',
-          style=list('margin-bottom'='15px')),
+          style=list('margin-bottom'='15px'))
         ),style=list(margin='15px 0'))
     )))
 }
@@ -234,13 +235,270 @@ app$layout(htmlDiv(
         style=list(
           position='absolute',
           transform='translate(-50%, 20%)',
-          'z-index'='9999'
+          'z-index'='9999',
+          float = 'center'
         ),
         size=30,
         value=F
         )
     )),
-    header()
+    header(),
+    htmlDiv(
+      children=htmlDiv(
+        children=list(
+          htmlDiv(
+            className='five columns left-panel',
+            children=list(
+              htmlDiv(
+                id='dark-theme-components',
+                children=daqDarkThemeProvider(
+                  theme=theme,
+                  children=list(
+                    power_setting_div(NULL, 1),
+                    function_setting_div(NULL, 1)
+                  )
+                )
+              ),
+              daqColorPicker(
+                id='color-picker',
+                label='Color Picker',
+                value=list(hex='#6682C0'),
+                size=164,
+                style=list(marginTop = '20px', backgroundColor = 'inherit')
+              )
+            )
+          ),
+          #Oscillator Panel - Right
+          htmlDiv(
+            className='seven columns right-panel',
+            children=list(
+              htmlDiv(htmlH3("Graph", id='graph-title'),
+                      style=list(color=theme[['primary']]),
+                      className='Title'),
+              dccTabs(
+                id='tabs',
+                children=dccTab(
+                  label='Run #1',
+                  value='1'),
+                value='1',
+                className='oscillator-tabs',
+                colors=list(
+                  border='#d6d6d6',
+                  primary='#6682C0',
+                  background='#f2f2f2'
+                )
+              ),
+              
+              htmlDiv(
+                className='row oscope-info',
+                children=list(
+                  htmlDiv(),
+                  htmlButton(
+                    '+',
+                    id='new-tab',
+                    n_clicks=0,
+                    type='submit',
+                    style=list(
+                      height='20px',
+                      width='20px',
+                      padding='2px',
+                      lineHeight='10px',
+                      float='right',
+                      color='inherit'
+                    ))
+                  )
+              ),
+              htmlHr(),
+              dccGraph(id='oscope-graph', figure=list())
+            )
+          )
+        )
+      )
+    ),
+    dccStore(id='control-inputs', data=list())
+    # {tabs_number: {value1=x, value2=x}}
 )))
 
+#Does not support multiple outputs - need to be updated
+app$callback(
+  output=list(id='oscilloscope', property='on'),
+  params=list(input(id='tabs', property='value'), 
+              state(id='control-inputs', property='value'),
+              state(id='oscilloscope', property='on'),
+              state(id='function-generator', property='on')),
+  function(tab_index, cur_inputs, osci_on, func_gen){
+    if(!tab_index %in% cur_inputs){
+      return(osci_on)
+    }
+    td <- cur_inputs[[tab_index]]
+    return(td[['oscilloscope']])
+  }
+)
+
+app$callback(
+  output=list(id='function-generator', property='on'),
+  params=list(input(id='tabs', property='value'), 
+              state(id='control-inputs', property='value'),
+              state(id='oscilloscope', property='on'),
+              state(id='function-generator', property='on')),
+  function(tab_index, cur_inputs, osci_on, func_gen){
+    if(!tab_index %in% cur_inputs){
+      return(func_gen)
+    }
+    td <- cur_inputs[[tab_index]]
+    return(td[['function_generator']])
+  }
+)
+
+
+app$callback(
+  output=list(id='frequency-input', property='value'),
+  params=list(input(id='tabs', property='value'), 
+              state(id='control-inputs', property='value'),
+              state(id='oscilloscope', property='on'),
+              state(id='function-generator', property='on')),
+  function(tab_index, cur_inputs, osci_on, func_gen){
+    if(!tab_index %in% cur_inputs){
+      return(1000000)
+    }
+    td <- cur_inputs[[tab_index]]
+    return(td[['frequency_input']])
+  }
+)
+
+app$callback(
+  output=list(id='amplitude-input', property='value'),
+  params=list(input(id='tabs', property='value'), 
+              state(id='control-inputs', property='value'),
+              state(id='oscilloscope', property='on'),
+              state(id='function-generator', property='on')),
+  function(tab_index, cur_inputs, osci_on, func_gen){
+    if(!tab_index %in% cur_inputs){
+      return(1)
+    }
+    td <- cur_inputs[[tab_index]]
+    return(td[['amplitude_input']])
+  }
+)
+
+app$callback(
+  output=list(id='offset-input', property='value'),
+  params=list(input(id='tabs', property='value'), 
+              state(id='control-inputs', property='value'),
+              state(id='oscilloscope', property='on'),
+              state(id='function-generator', property='on')),
+  function(tab_index, cur_inputs, osci_on, func_gen){
+    if(!tab_index %in% cur_inputs){
+      return(0)
+    }
+    td <- cur_inputs[[tab_index]]
+    return(td[['offset_input']])
+  }
+)
+
+app$callback(
+  output=list(id='function-type', property='value'),
+  params=list(input(id='tabs', property='value'), 
+              state(id='control-inputs', property='value'),
+              state(id='oscilloscope', property='on'),
+              state(id='function-generator', property='on')),
+  function(tab_index, cur_inputs, osci_on, func_gen){
+    if(!tab_index %in% cur_inputs){
+      return('SIN')
+    }
+    td <- cur_inputs[[tab_index]]
+    return(td[['function_type']])
+  }
+)
+
+app$callback(
+  output=list(id='control-inputs', property='data'),
+  params=list(
+    input(id='oscilloscope',property='on'),
+    input(id='function-generator',property='on'),
+    input(id='frequency-input',property='value'),
+    input(id='amplitude-input',property='value'),
+    input(id='offset-input',property='value'),
+    input(id='function-type',property='value'),
+    state(id='tabs', property='value'),
+    state(id='control-inputs', property='data')),
+  function(osc_on, fnct_on, freq, amp, offset, wave, sel_tab, cur_inputs){
+    cur_inputs[[sel_tab]] = list(oscilloscope=osc_on, 
+                                 function_generator=fnct_on, 
+                                 frequency_input=freq,
+                                 amplitude_input=amp,
+                                 offset_input=offset,
+                                 function_type=wave
+                                 )
+    return(cur_inputs)
+  }
+)
+
+# new tab created, not saved to store unless control inputs changes 
+
+app$callback(
+  output=list(id='oscope-graph', property='figure'),
+  params=list(input(id='control-inputs', property='data'),
+              input(id='toggleTheme', property='value'),
+              state(id='tabs', property='value')),
+  function(cur_inputs, theme_value, tab_index){
+    theme_select <- ifelse(theme_value, 'dark', 'light')
+    axis <- axis_color[[theme_select]]
+    marker <- marker_color[[theme_select]]
+    time <- seq(-0.00045, 0.000045, length.out = 1000)
+    base_figure <- list(
+      data=list(type='scatter',
+                x=time, 
+                y=numeric(length(time)),
+                marker=list(color=marker),
+                mode='lines'),
+      layout= list(xaxis=list(title='s',
+                             color=axis,
+                             titlefont=list(family='Dosis'), 
+                             size=13),
+                  yaxis=list(title='Voltage (mV)',
+                             color=axis,
+                             range=c(-10, 10),
+                             titlefont=list(family='Dosis'), 
+                             size=13),
+                  margin=list(l=40, b=40, t=20, r=50),
+                  plot_bgcolor='rgba(0,0,0,0)',
+                  paper_bgcolor='rgba(0,0,0,0)'
+                  )
+    )
+    if(!tab_index %in% cur_inputs){
+      return(base_figure)
+    }
+    tab_data <- cur_inputs[[tab_index]]
+    
+    if(rlang::is_empty(tab_data[['oscilloscope']])||is.na(tab_data[['oscilloscope']])){
+      base_figure[[data]] = list()
+      base_figure[['layout']][['xaxis']][['showticklabels']] <- F
+      base_figure[['layout']][['xaxis']][['showline']] <- F
+      base_figure[['layout']][['xaxis']][['zeroline']] <- F
+      return(base_figure)
+    }
+    
+    if(rlang::is_empty(tab_data[['function_generator']])||is.na(tab_data[['function_generator']])){
+      return(base_figure)
+    }
+    
+    if(tab_data[['function_type']]=='SIN'){
+      y <- unlist(lapply(time, function(n){
+          return(tab_data[['offset_input']]+tab_data[['amplitude_input']]*sinpi(2*tab_data[['frequency_input']]*n))
+          }))
+    } else if(tab_data[['function_type']]=='SQUARE'){
+      
+    } else if(tab_data[['function_type']]=='RAMP'){
+      
+    } else {
+      
+    }
+    
+  }
+  
+  
+)
+
+####### LAUNCH THE APP
 app$run_server(host = "0.0.0.0", port = Sys.getenv('PORT', 8050))
